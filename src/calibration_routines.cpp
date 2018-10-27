@@ -39,15 +39,15 @@ void applyChanMask(std::unordered_map<uint32_t, uint32_t> map_chanOrigMask, loca
 bool confCalPulseLocal(localArgs *la, ParamCalPulse calParams, ParamScan scanParams){
 
     uint32_t ohN = scanParams.ohN;
-    uint32_t vfatMask = scanParams.vfatMask;
+    uint32_t mask = scanParams.vfatMask;
     uint32_t ch = scanParams.chan;
     
     bool toggleOn = calParams.enable;
-    bool isCurrentPulse = calParams.isCurrent;
+    bool currentPulse = calParams.isCurrent;
     uint32_t calScaleFactor = calParams.scaleFactor;
     
     //Determine the inverse of the vfatmask
-    uint32_t notmask = ~vfatMask & 0xFFFFFF;
+    uint32_t notmask = ~mask & 0xFFFFFF;
 
     char regBuf[200];
     if(ch >= 128 && toggleOn == true){ //Case: Bad Config, asked for OR of all channels
@@ -71,7 +71,7 @@ bool confCalPulseLocal(localArgs *la, ParamCalPulse calParams, ParamScan scanPar
                 sprintf(regBuf,"GEM_AMC.OH.OH%i.GEB.VFAT%i.VFAT_CHANNELS.CHANNEL%i.CALPULSE_ENABLE", ohN, vfatN, ch);
                 if(toggleOn == true){ //Case: turn calpulse on
                     writeReg(la, regBuf, 0x1);
-                    if(isCurrentPulse){ //Case: cal mode current injection
+                    if(currentPulse){ //Case: cal mode current injection
                         writeReg(la, stdsprintf("GEM_AMC.OH.OH%i.GEB.VFAT%i.CFG_CAL_MODE", ohN, vfatN), 0x2);
 
                         //Set cal current pulse scale factor. Q = CAL DUR[s] * CAL DAC * 10nA * CAL FS[%] (00 = 25%, 01 = 50%, 10 = 75%, 11 = 100%)
@@ -315,7 +315,7 @@ void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse calParams, Par
     bool useUltra = scanParams.useUltra; 
     uint32_t ohN = scanParams.ohN ;
     uint32_t nevts = scanParams.nevts ;
-    uint32_t vfatMask = scanParams.vfatMask;
+    uint32_t mask = scanParams.vfatMask;
     uint32_t ch = scanParams.chan;
     uint32_t dacMin = scanParams.dacMin;
     uint32_t dacMax = scanParams.dacMax;
@@ -323,11 +323,11 @@ void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse calParams, Par
     std::string scanReg = scanParams.scanReg;
 
     bool useCalPulse = calParams.enable;
-    bool isCurrentPulse = calParams.isCurrent;
+    bool currentPulse = calParams.isCurrent;
     bool calScaleFactor = calParams.scaleFactor;
     
     //Determine the inverse of the vfatmask
-    uint32_t notmask = ~vfatMask & 0xFFFFFF;
+    uint32_t notmask = ~mask & 0xFFFFFF;
 
     //Check firmware version
     switch(fw_version_check("genScanLocal", la)) {
@@ -342,7 +342,7 @@ void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse calParams, Par
                 return;
             }
 
-            if (isCurrentPulse && calScaleFactor > 3){
+            if (currentPulse && calScaleFactor > 3){
                 sprintf(regBuf,"Bad value for CFG_CAL_FS: %x, Possible values are {0b00, 0b01, 0b10, 0b11}. Exiting.",calScaleFactor);
                 la->response->set_string("error",regBuf);
                 return;
@@ -854,7 +854,7 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
     uint32_t mask = scanParams.vfatMask;
     uint32_t nevts = scanParams.nevts;
     bool useCalPulse = calParams.enable;
-    bool isCurrentPulse = calParams.isCurrent;
+    bool currentPulse = calParams.isCurrent;
     uint32_t calScaleFactor = calParams.scaleFactor;
     uint32_t pulseDelay = ttcParams.pulseDelay;
 
@@ -876,7 +876,7 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
         return;
     }
 
-    if (isCurrentPulse && calScaleFactor > 3){
+    if (currentPulse && calScaleFactor > 3){
         sprintf(regBuf,"Bad value for CFG_CAL_FS: %x, Possible values are {0b00, 0b01, 0b10, 0b11}. Exiting.",calScaleFactor);
         la->response->set_string("error",regBuf);
         return;
