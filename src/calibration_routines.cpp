@@ -352,7 +352,7 @@ void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse calParams, Par
             if(useCalPulse){
                 calParams.enable = true; 
                 if (confCalPulseLocal(la, calParams, scanParams) == false){
-                    la->response->set_string("error",stdsprintf("Unable to configure calpulse ON for ohN %i mask %x chan %i", ohN, vfatMask, ch));
+                    la->response->set_string("error",stdsprintf("Unable to configure calpulse ON for ohN %i mask %x chan %i", ohN, mask, ch));
                     return; //Calibration pulse is not configured correctly
                 }
             } //End use calibration pulse
@@ -441,7 +441,7 @@ void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse calParams, Par
             if(useCalPulse){
                 calParams.enable = false; 
                 if (confCalPulseLocal(la, calParams, scanParams) == false){
-                    la->response->set_string("error",stdsprintf("Unable to configure calpulse OFF for ohN %i mask %x chan %i", ohN, vfatMask, ch));
+                    la->response->set_string("error",stdsprintf("Unable to configure calpulse OFF for ohN %i mask %x chan %i", ohN, mask, ch));
                     return; //Calibration pulse is not configured correctly
                 }
             }
@@ -489,7 +489,7 @@ void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse calParams, Par
                 }
             }
 
-            configureScanModuleLocal(la, ohN, vfatN, scanmode, useUltra, vfatMask, ch, nevts, dacMin, dacMax, dacStep);
+            configureScanModuleLocal(la, ohN, vfatN, scanmode, useUltra, mask, ch, nevts, dacMin, dacMax, dacStep);
 
             //Print scan configuration
             printScanConfigurationLocal(la, ohN, useUltra);
