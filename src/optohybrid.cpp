@@ -246,17 +246,17 @@ void configureVFATs(const RPCMsg *request, RPCMsg *response) {
   rtxn.abort();
 }
 
-void configureScanModuleLocal(localArgs * la, uint32_t scanmode, ParamScan scanParams)
+void configureScanModuleLocal(localArgs * la, uint32_t scanmode, ParamScan *scanParams)
 {
-    uint32_t ohN = scanParams.ohN;
-    uint32_t vfatN = scanParams.vfatN;
-    bool useUltra = scanParams.useUltra;
-    uint32_t mask = scanParams.vfatMask;
-    uint32_t ch = scanParams.chan;
-    uint32_t nevts = scanParams.nevts;
-    uint32_t dacMin = scanParams.dacMin;
-    uint32_t dacMax = scanParams.dacMax;
-    uint32_t dacStep = scanParams.dacStep;
+    uint32_t ohN = scanParams->ohN;
+    uint32_t vfatN = scanParams->vfatN;
+    bool useUltra = scanParams->useUltra;
+    uint32_t mask = scanParams->vfatMask;
+    uint32_t ch = scanParams->chan;
+    uint32_t nevts = scanParams->nevts;
+    uint32_t dacMin = scanParams->dacMin;
+    uint32_t dacMax = scanParams->dacMax;
+    uint32_t dacStep = scanParams->dacStep;
 
     /*
      *     Configure the firmware scan controller
@@ -324,42 +324,29 @@ void configureScanModule(const RPCMsg *request, RPCMsg *response){
     auto rtxn = lmdb::txn::begin(env, nullptr, MDB_RDONLY);
     auto dbi = lmdb::dbi::open(rtxn, nullptr);
 
+    ParamScan scanParams;
+    
     //Get OH and scanmode
-    uint32_t ohN = request->get_word("ohN");
+    scanParams.ohN = request->get_word("ohN");
     uint32_t scanmode = request->get_word("scanmode");
 
     //Setup ultra mode, mask, and/or vfat number
-    bool useUltra = false;
-    uint32_t mask = 0xFFFFFFFF;
-    uint32_t vfatN = 0;
     if (request->get_key_exists("useUltra")){
-        useUltra = true;
-        mask = request->get_word("mask");
+        scanParams.useUltra = true;
+        scanParams.vfatMask = request->get_word("mask");
     }
     else{
-        vfatN = request->get_word("vfatN");
+        scanParams.vfatN = request->get_word("vfatN");
     }
 
-    uint32_t ch = request->get_word("ch");
-    uint32_t nevts = request->get_word("nevts");
-    uint32_t dacMin = request->get_word("dacMin");
-    uint32_t dacMax = request->get_word("dacMax");
-    uint32_t dacStep = request->get_word("dacStep");
+    scanParams.chan = request->get_word("ch");
+    scanParams.nevts = request->get_word("nevts");
+    scanParams.dacMin = request->get_word("dacMin");
+    scanParams.dacMax = request->get_word("dacMax");
+    scanParams.dacStep = request->get_word("dacStep");
 
-    ParamScan ps;
-
-    ps.chan = ch;
-    ps.nevts = nevts;
-    ps.dacMin = dacMin;
-    ps.dacMax = dacMax;
-    ps.dacStep = dacStep;
-    ps.ohN = ohN;
-    ps.vfatN = vfatN;
-    ps.vfatMask = mask;
-    ps.useUltra = useUltra;
-    
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
-    configureScanModuleLocal(&la, scanmode, ps);
+    configureScanModuleLocal(&la, scanmode, &scanParams);
 
     return;
 } //End configureScanModule(...)
@@ -484,13 +471,13 @@ void startScanModule(const RPCMsg *request, RPCMsg *response){
     return;
 } //End startScanModule(...)
 
-void getUltraScanResultsLocal(localArgs * la, uint32_t *outData, ParamScan scanParams)
+void getUltraScanResultsLocal(localArgs * la, uint32_t *outData, ParamScan *scanParams)
 {
-    uint32_t ohN = scanParams.ohN;
-    uint32_t nevts = scanParams.nevts;
-    uint32_t dacMin = scanParams.dacMin;
-    uint32_t dacMax = scanParams.dacMax;
-    uint32_t dacStep = scanParams.dacStep;
+    uint32_t ohN = scanParams->ohN;
+    uint32_t nevts = scanParams->nevts;
+    uint32_t dacMin = scanParams->dacMin;
+    uint32_t dacMax = scanParams->dacMax;
+    uint32_t dacStep = scanParams->dacStep;
     
     std::stringstream sstream;
     sstream<<ohN;
@@ -561,24 +548,18 @@ void getUltraScanResults(const RPCMsg *request, RPCMsg *response){
     auto rtxn = lmdb::txn::begin(env, nullptr, MDB_RDONLY);
     auto dbi = lmdb::dbi::open(rtxn, nullptr);
 
-    uint32_t ohN = request->get_word("ohN");
-    uint32_t nevts = request->get_word("nevts");
-    uint32_t dacMin = request->get_word("dacMin");
-    uint32_t dacMax = request->get_word("dacMax");
-    uint32_t dacStep = request->get_word("dacStep");
+    ParamScan scanParams;
+    scanParams.ohN = request->get_word("ohN");
+    scanParams.nevts = request->get_word("nevts");
+    scanParams.dacMin = request->get_word("dacMin");
+    scanParams.dacMax = request->get_word("dacMax");
+    scanParams.dacStep = request->get_word("dacStep");
 
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
-    uint32_t outData[24*(dacMax-dacMin+1)/dacStep];
+    uint32_t outData[24*(scanParams.dacMax-scanParams.dacMin+1)/scanParams.dacStep];
 
-    ParamScan ps;
-    ps.ohN = ohN;
-    ps.nevts = nevts;
-    ps.dacMin = dacMin;
-    ps.dacMax = dacMax;
-    ps.dacStep = dacStep;
-    
-    getUltraScanResultsLocal(&la, outData, ps);
-    response->set_word_array("data",outData,24*(dacMax-dacMin+1)/dacStep);
+    getUltraScanResultsLocal(&la, outData, &scanParams);
+    response->set_word_array("data",outData,24*(scanParams.dacMax-scanParams.dacMin+1)/scanParams.dacStep);
 
     return;
 } //End getUltraScanResults(...)
