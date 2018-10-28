@@ -189,6 +189,7 @@ void ttcGenToggle(const RPCMsg *request, RPCMsg *response)
 void ttcGenConfLocal(localArgs * la, ParamScan scanParams, ParamTtcGen ttcParams)
 {
     uint32_t ohN = scanParams.ohN;
+
     uint32_t mode = ttcParams.mode;
     uint32_t type = ttcParams.type;
     uint32_t pulseDelay = ttcParams.pulseDelay;
@@ -310,7 +311,10 @@ void ttcGenConf(const RPCMsg *request, RPCMsg *response)
 
 void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse calParams, ParamScan scanParams)
 {
-
+    bool useCalPulse = calParams.enable;
+    bool currentPulse = calParams.isCurrent;
+    bool calScaleFactor = calParams.scaleFactor;
+    
     bool useExtTrig = scanParams.useExtTrig;
     bool useUltra = scanParams.useUltra; 
     uint32_t ohN = scanParams.ohN ;
@@ -322,10 +326,6 @@ void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse calParams, Par
     uint32_t dacStep = scanParams.dacStep;
     std::string scanReg = scanParams.scanReg;
 
-    bool useCalPulse = calParams.enable;
-    bool currentPulse = calParams.isCurrent;
-    bool calScaleFactor = calParams.scaleFactor;
-    
     //Determine the inverse of the vfatmask
     uint32_t notmask = ~mask & 0xFFFFFF;
 
@@ -608,7 +608,7 @@ void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outData
     switch (fw_version_check("SBIT Rate Scan", la)){
         case 3:
         {
-            //Hard code possible maskOh values and how they map to vfatN
+            //Hard code possible mask values and how they map to vfatN
             std::unordered_map<uint32_t,uint32_t> map_maskOh2vfatN;
             map_maskOh2vfatN[0xfffffe] = 0;
             map_maskOh2vfatN[0xfffffd] = 1;
@@ -635,7 +635,7 @@ void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outData
             map_maskOh2vfatN[0xbfffff] = 22;
             map_maskOh2vfatN[0x7fffff] = 23;
 
-            //Determine vfatN based on input maskOh
+            //Determine vfatN based on input mask
             auto vfatNptr = map_maskOh2vfatN.find(maskOh);
             if( vfatNptr == map_maskOh2vfatN.end() ){
                 sprintf(regBuf,"Input maskOh: %x not recgonized. Please make sure all but one VFAT is unmasked and then try again", maskOh);
@@ -849,13 +849,15 @@ void sbitRateScan(const RPCMsg *request, RPCMsg *response)
 
 void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCalPulse calParams, ParamScan scanParams, ParamTtcGen ttcParams) {
 
+    bool useCalPulse = calParams.enable;
+    bool currentPulse = calParams.isCurrent;
+    uint32_t calScaleFactor = calParams.scaleFactor;
+    
     uint32_t ohN = scanParams.ohN;
     uint32_t vfatN = scanParams.vfatN;
     uint32_t mask = scanParams.vfatMask;
     uint32_t nevts = scanParams.nevts;
-    bool useCalPulse = calParams.enable;
-    bool currentPulse = calParams.isCurrent;
-    uint32_t calScaleFactor = calParams.scaleFactor;
+
     uint32_t pulseDelay = ttcParams.pulseDelay;
 
     //Determine the inverse of the vfatmask

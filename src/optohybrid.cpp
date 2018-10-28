@@ -355,6 +355,7 @@ void configureScanModule(const RPCMsg *request, RPCMsg *response){
     ps.dacStep = dacStep;
     ps.ohN = ohN;
     ps.vfatN = vfatN;
+    ps.vfatMask = mask;
     ps.useUltra = useUltra;
     
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
