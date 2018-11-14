@@ -93,8 +93,12 @@ bool confCalPulseLocal(localArgs *la, ParamCalPulse *calParams, ParamScan *scanP
     return true;
 } //End confCalPulseLocal
 
-void dacMonConfLocal(localArgs * la, uint32_t ohN, uint32_t ch)
+void dacMonConfLocal(localArgs * la, ParamScan *scanParams)
 {
+
+    uint32_t ohN = scanParams->ohN;
+    uint32_t ch = scanParams->chan;
+    
     //Check the firmware version
     char regBuf[200];
     switch (fw_version_check("dacMonConf", la)){
@@ -125,8 +129,13 @@ void dacMonConfLocal(localArgs * la, uint32_t ohN, uint32_t ch)
     return;
 }
 
-void ttcGenToggleLocal(localArgs * la, uint32_t ohN, bool enable)
+void ttcGenToggleLocal(localArgs * la, ParamScan *scanParams, ParamTtcGen *ttcParams)
 {
+
+    uint32_t ohN = scanParams->ohN;
+
+    bool enable = ttcParams->enable;
+    
     //Check firmware version
     switch(fw_version_check("ttcGenToggle", la)) {
         case 3: //v3 electronics behavior
@@ -177,11 +186,15 @@ void ttcGenToggle(const RPCMsg *request, RPCMsg *response)
     auto rtxn = lmdb::txn::begin(env, nullptr, MDB_RDONLY);
     auto dbi = lmdb::dbi::open(rtxn, nullptr);
 
-    uint32_t ohN = request->get_word("ohN");
-    bool enable = request->get_word("enable");
-
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
-    ttcGenToggleLocal(&la, ohN, enable);
+    ParamTtcGen ttcParams;
+    ParamScan scanParams;
+
+    scanParams.ohN = request->get_word("ohN");
+    
+    ttcParams.enable = request->get_word("enable");
+
+    ttcGenToggleLocal(&la, &scanParams, &ttcParams);
 
     return;
 } //End ttcGenToggle(...)
@@ -195,7 +208,6 @@ void ttcGenConfLocal(localArgs * la, ParamScan *scanParams, ParamTtcGen *ttcPara
     uint32_t pulseDelay = ttcParams->pulseDelay;
     uint32_t L1Ainterval = ttcParams->L1Ainterval;
     uint32_t nPulses = ttcParams->nPulses;
-    bool enable = ttcParams->enable;
     
     //Check firmware version
     LOGGER->log_message(LogManager::INFO, "Entering ttcGenConfLocal");
@@ -267,7 +279,7 @@ void ttcGenConfLocal(localArgs * la, ParamScan *scanParams, ParamTtcGen *ttcPara
     }
     //start or stop
     LOGGER->log_message(LogManager::INFO, "ttcGenConfLocal: call ttcGenToggleLocal");
-    ttcGenToggleLocal(la, ohN, enable);
+    ttcGenToggleLocal(la, scanParams, ttcParams);
     return;
 }
 
@@ -370,7 +382,7 @@ void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, Pa
             }
 
             //Configure VFAT_DAQ_MONITOR
-            dacMonConfLocal(la, ohN, ch);
+            dacMonConfLocal(la, scanParams);
 
             //Scan over DAC values
             for(uint32_t dacVal = dacMin; dacVal <= dacMax; dacVal += dacStep)
@@ -975,8 +987,11 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
     writeReg(la,stdsprintf("GEM_AMC.OH.OH%i.GEB.VFAT%i.CFG_RUN",ohN, vfatN), 0x0);
     //} //End Loop over all VFATs
 
+    ParamTtcGen ttcParams_disabled;
+    ttcParams_disabled.enable=false;
+        
     //turn off TTC Generator
-    ttcGenToggleLocal(la, ohN, false);
+    ttcGenToggleLocal(la, scanParams, &ttcParams_disabled);
 
     //Return channel register settings to their original values
     setChannelRegistersVFAT3SimpleLocal(la, ohN, mask, chanRegData_orig);
@@ -1199,7 +1214,11 @@ void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, ui
 
     //turn off TTC Generator
     LOGGER->log_message(LogManager::INFO, "Disabling TTC Generator");
-    ttcGenToggleLocal(la, ohN, false);
+
+    ParamTtcGen ttcParams_disabled;
+    ttcParams_disabled.enable=false;
+    
+    ttcGenToggleLocal(la, scanParams, &ttcParams_disabled);
 
     //Return channel register settings to their original values
     LOGGER->log_message(LogManager::INFO, stdsprintf("Reverting vfat3 channel registers on ohN %i to original values",ohN));
