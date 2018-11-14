@@ -23,6 +23,9 @@
 
 memsvc_handle_t memsvc; /// \var global memory service handle required for registers read/write operations
 
+/*! \struct ParamScan
+ *  Contains arguments related to calibration pulses
+ */
 struct ParamCalPulse{
     bool enable; //true (false) turn on (off) calpulse
     bool isCurrent; //true (false) is current injection (voltage pulse)
@@ -47,17 +50,20 @@ struct ParamCalPulse{
     }
 }; //End ParamCalPulse
 
+/*! \struct ParamScan
+ *  Contains arguments related to scans
+ */
 struct ParamScan{
     //Hardware selection
-    uint32_t ohN;
-    uint32_t ohMask;
-    uint32_t vfatN;
-    uint32_t vfatMask;
+    uint32_t ohN;       //optical link number
+    uint32_t ohMask;    //OH mask
+    uint32_t vfatN;     //VFAT number
+    uint32_t vfatMask;  //VFAT mask
     uint32_t chan;      //channel of interest
 
     //Params
-    bool useUltra;
-    bool useExtTrig;
+    bool useUltra;   //Set to 1 in order to use the ultra scan
+    bool useExtTrig; //Set to 1 in order to use the backplane triggers
 
     uint32_t dacMax;    //Maximum dac value
     uint32_t dacMin;    //Minimum dac value
@@ -82,15 +88,18 @@ struct ParamScan{
     }
 }; //End ParamScan
 
+/*! \struct ParamTtcGen
+ *  Contains arguments related to ttc generation
+ */
 struct ParamTtcGen{
-    bool enable;
+    bool enable; //If true (false) ignore (take) ttc commands from backplane for this AMC (affects all links)
 
-    uint32_t L1Ainterval;
-    uint32_t mode;
-    uint32_t nPulses;
-    uint32_t pulseDelay;
-    uint32_t pulseRate;
-    uint32_t type;
+    uint32_t L1Ainterval; //How often to repeat signals
+    uint32_t mode; //T1 controller mode
+    uint32_t nPulses; //Number of calibration pulses to generate
+    uint32_t pulseDelay; //Delay between CalPulse and L1A
+    uint32_t pulseRate; //rate of calpulses to be sent in Hz
+    uint32_t type; //Type of T1 signal to send
 
     ParamTtcGen(){
         enable = false;
