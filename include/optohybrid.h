@@ -78,7 +78,7 @@ void broadcastRead(const RPCMsg *request, RPCMsg *response);
  *  \param dacMax Maximal value of scan variable
  *  \param dacStep Scan variable change step
  */
-void configureScanModuleLocal(localArgs * la, uint32_t ohN, uint32_t vfatN, uint32_t scanmode, bool useUltra, uint32_t mask, uint32_t ch, uint32_t nevts, uint32_t dacMin, uint32_t dacMax, uint32_t dacStep);
+void configureScanModuleLocal(localArgs * la, uint32_t scanmode, ParamScan *scanParams);
 
 /*! \fn void configureScanModule(const RPCMsg *request, RPCMsg *response)
  *  \brief Configures V2b FW scan module
@@ -103,7 +103,7 @@ void configureVFATs(const RPCMsg *request, RPCMsg *response);
  *  \param dacMax Maximal value of scan variable
  *  \param dacStep Scan variable change step
  */
-void getUltraScanResultsLocal(localArgs *la, uint32_t *outData, uint32_t ohN, uint32_t nevts, uint32_t dacMin, uint32_t dacMax, uint32_t dacStep);
+void getUltraScanResultsLocal(localArgs * la, uint32_t *outData, ParamScan *scanParams);
 
 /*! \fn void getUltraScanResults(const RPCMsg *request, RPCMsg *response)
  *  \brief Returns results of an ultra scan routine

@@ -484,18 +484,18 @@ void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, Pa
             }
 
             //Configure scan module
-            uint32_t vfatN = 0;
+            ParamScan scanParams_modified(*scanParams);
             if (!useUltra){
                 //If we are not performing an ultraScan, take the first non-masked VFAT
                 for(int vfat=0; vfat<24; ++vfat){
                     if((notmask >> vfat) & 0x1){
-                        vfatN=vfat;
+                        scanParams_modified.vfatN = vfat; 
                         break;
                     }
                 }
             }
-
-            configureScanModuleLocal(la, ohN, vfatN, scanmode, useUltra, mask, ch, nevts, dacMin, dacMax, dacStep);
+            
+            configureScanModuleLocal(la, scanmode, &scanParams_modified);
 
             //Print scan configuration
             printScanConfigurationLocal(la, ohN, useUltra);
@@ -531,7 +531,7 @@ void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, Pa
             }
 
             //Get scan results
-            getUltraScanResultsLocal(la, outData, ohN, nevts, dacMin, dacMax, dacStep);
+            getUltraScanResultsLocal(la, outData, scanParams);
             break;
         }//End v2b electronics behavior
         default:
