@@ -1279,7 +1279,7 @@ void checkSbitRateWithCalPulse(const RPCMsg *request, RPCMsg *response){
     return;
 } //End checkSbitRateWithCalPulse()
 
-std::vector<uint32_t> dacScanLocal(localArgs *la, ParamScan *scanParams, bool useExtRefADC=false)
+std::vector<uint32_t> dacScanLocal(localArgs *la, ParamScan *scanParams, bool useExtRefADC)
 {
 
     uint32_t ohN = scanParams->ohN;

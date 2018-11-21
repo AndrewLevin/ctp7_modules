@@ -81,7 +81,7 @@ void applyChanMask(std::unordered_map<uint32_t, uint32_t> map_chanOrigMask, loca
  *  \param currentPulse Selects whether to use current or volage pulse
  *  \param calScaleFactor Scale factor for the calibration pulse height (00 = 25%, 01 = 50%, 10 = 75%, 11 = 100%)
  */
-bool confCalPulseLocal(localArgs *la, uint32_t ohN, uint32_t mask, uint32_t ch, bool toggleOn, bool currentPulse, uint32_t calScaleFactor);
+bool confCalPulseLocal(localArgs *la, ParamCalPulse *calParams, ParamScan *scanParams);
 
 /*! \fn void dacMonConfLocal(localArgs * la, uint32_t ohN, uint32_t ch)
  *  \brief Configures DAQ monitor. Local version only
@@ -89,7 +89,7 @@ bool confCalPulseLocal(localArgs *la, uint32_t ohN, uint32_t mask, uint32_t ch, 
  *  \param ohN Optical link number
  *  \param ch Channel of interest
  */
-void dacMonConfLocal(localArgs * la, uint32_t ohN, uint32_t ch);
+void dacMonConfLocal(localArgs * la, ParamScan *scanParams);
 
 /*! \fn void ttcGenToggleLocal(localArgs * la, uint32_t ohN, bool enable)
  *  \brief Toggles the TTC Generator. Local callable version of ttcGenToggle
@@ -101,7 +101,7 @@ void dacMonConfLocal(localArgs * la, uint32_t ohN, uint32_t ch);
  *  \param ohN Optical link
  *  \param enable See detailed mehod description
  */
-void ttcGenToggleLocal(localArgs * la, uint32_t ohN, bool enable);
+void ttcGenToggleLocal(localArgs * la, ParamScan *scanParams, ParamTtcGen *ttcParams);
 
 /*! \fn void ttcGenToggle(const RPCMsg *request, RPCMsg *response)
  *  \brief Toggles the TTC Generator
@@ -146,7 +146,7 @@ void ttcGenToggle(const RPCMsg *request, RPCMsg *response);
  *  \param nPulses Number of calibration pulses to generate
  *  \param enable If true (false) ignore (take) ttc commands from backplane for this AMC (affects all links)
  */
-void ttcGenConfLocal(localArgs * la, uint32_t ohN, uint32_t mode, uint32_t type, uint32_t pulseDelay, uint32_t L1Ainterval, uint32_t nPulses, bool enable);
+void ttcGenConfLocal(localArgs * la, ParamScan *scanParams, ParamTtcGen *ttcParams);
 
 /*! \fn void ttcGenConf(const RPCMsg *request, RPCMsg *response)
  *  \brief Configures TTC generator
@@ -194,7 +194,7 @@ void ttcGenConf(const RPCMsg *request, RPCMsg *response);
  *  \param useUltra Set to 1 in order to use the ultra scan
  *  \param useExtTrig Set to 1 in order to use the backplane triggers
  */
-void genScanLocal(localArgs *la, uint32_t *outData, uint32_t ohN, uint32_t mask, uint32_t ch, bool useCalPulse, bool currentPulse, uint32_t calScaleFactor, uint32_t nevts, uint32_t dacMin, uint32_t dacMax, uint32_t dacStep, std::string scanReg, bool useUltra, bool useExtTrig);
+void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, ParamScan *scanParams);
 
 /*! \fn void genScan(const RPCMsg *request, RPCMsg *response)
  *  \brief Generic calibration routine
@@ -228,7 +228,7 @@ void genScan(const RPCMsg *request, RPCMsg *response);
  *  \param scanReg DAC register to scan over name
  *  \waitTime Measurement duration per point in milliseconds
  */
-void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outDataTrigRate, uint32_t ohN, uint32_t maskOh, bool invertVFATPos, uint32_t ch, uint32_t dacMin, uint32_t dacMax, uint32_t dacStep, std::string scanReg, uint32_t waitTime);
+void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outDataTrigRate, ParamScan *scanParams, bool invertVFATPos);
 
 /*! \fn void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outDataTrigRatePerVFAT, uint32_t *outDataTrigRateOverall, uint32_t ohN, uint32_t vfatmask, uint32_t ch, uint32_t dacMin, uint32_t dacMax, uint32_t dacStep, std::string scanReg)
  *  \brief Parallel SBIT rate scan. Local version of sbitRateScan
@@ -253,7 +253,7 @@ void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outData
  *  \param dacStep Scan variable change step
  *  \param scanReg DAC register to scan over name
  */
-void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outDataTrigRatePerVFAT, uint32_t *outDataTrigRateOverall, uint32_t ohN, uint32_t vfatmask, uint32_t ch, uint32_t dacMin, uint32_t dacMax, uint32_t dacStep, std::string scanReg);
+void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outDataTrigRatePerVFAT, uint32_t *outDataTrigRateOverall,ParamScan *scanParams);
 
 /*! \fn void sbitRateScan(const RPCMsg *request, RPCMsg *response)
  *  \brief SBIT rate scan. See the local callable methods documentation for details
@@ -279,7 +279,7 @@ void sbitRateScan(const RPCMsg *request, RPCMsg *response);
  *  \param L1Ainterval How often to repeat signals (only for enable = true)
  *  \param pulseDelay delay between CalPulse and L1A
  */
-void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, uint32_t ohN, uint32_t vfatN, uint32_t mask, bool useCalPulse, bool currentPulse, uint32_t calScaleFactor, uint32_t nevts, uint32_t L1Ainterval, uint32_t pulseDelay);
+void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, ParamScan *scanParams, ParamTtcGen *ttcParams);
 
 /*! \fn void checkSbitMappingWithCalPulse(const RPCMsg *request, RPCMsg *response)
  *  \brief Checks the sbit mapping using the calibration pulse. See the local callable methods documentation for details
@@ -304,7 +304,7 @@ void checkSbitMappingWithCalPulse(const RPCMsg *request, RPCMsg *response);
  *  \param pulseRate rate of calpulses to be sent in Hz
  *  \param pulseDelay delay between CalPulse and L1A
  */
-void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, uint32_t *outDataFPGAClusterCntRate, uint32_t *outDataVFATSBits, uint32_t ohN, uint32_t vfatN, uint32_t mask, bool useCalPulse, bool currentPulse, uint32_t calScaleFactor, uint32_t waitTime, uint32_t pulseRate, uint32_t pulseDelay);
+void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, uint32_t *outDataFPGAClusterCntRate, uint32_t *outDataVFATSBits, ParamCalPulse *calParams, ParamScan *scanParams, ParamTtcGen *ttcParams);
 
 /*! \fn void checkSbitRateWithCalPulse(const RPCMsg *request, RPCMsg *response)
  *  \brief Checks the sbit rate using the calibration pulse. See the local callable methods documentation for details
@@ -323,7 +323,7 @@ void checkSbitRateWithCalPulse(const RPCMsg *request, RPCMsg *response);
  *  \param useExtRefADC if (true) false use the (externally) internally referenced ADC on the VFAT3 for monitoring
  *  \return Returns a std::vector<uint32_t> object of size 24*(dacMax-dacMin+1)/dacStep where dacMax and dacMin are described in the VFAT3 manual.  For each element bits [7:0] are the dacValue, bits [17:8] are the ADC readback value in either current or voltage units depending on dacSelect (again, see VFAT3 manual), bits [22:18] are the VFAT position, and bits [26:23] are the optohybrid number.
  */
-std::vector<uint32_t> dacScanLocal(localArgs *la, uint32_t ohN, uint32_t dacSelect, uint32_t dacStep=1, uint32_t mask=0xFF000000, bool useExtRefADC=false);
+std::vector<uint32_t> dacScanLocal(localArgs *la, ParamScan *scanParams, bool useExtRefADC=false);
 
 /*! \fn void dacScan(const RPCMsg *request, RPCMsg *response)
  *  \brief allows the host machine to perform a dacScan for all unmasked VFATs on a given optohybrid, see Local version for details.
