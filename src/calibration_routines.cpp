@@ -1202,6 +1202,7 @@ std::vector<uint32_t> dacScanLocal(localArgs *la, uint32_t ohN, uint32_t dacSele
                 for(int i=0; i<100; ++i){ //Read 100 times and take avg value
                     //Read the ADC
                     Temp = readRawAddress(adcAddr[vfatN], la->response);
+                    std::this_thread::sleep_for(std::chrono::microseconds(1000));
                     adcVal = adcVal + Temp;
                 }
                 adcVal = adcVal/100;
