@@ -1154,6 +1154,7 @@ void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, ui
         LOGGER->log_message(LogManager::INFO, stdsprintf("Enabling calpulse for channel %i on vfat %i of OH %i", chan, vfatN, ohN));
         ParamScan scanParams_modified(*scanParams);
         scanParams_modified.vfatMask = ~((0x1)<<vfatN) & 0xFFFFFF;
+        scanParams_modified.chan = chan;
         if (confCalPulseLocal(la, calParams, &scanParams_modified) == false){
             la->response->set_string("error",stdsprintf("Unable to configure calpulse %b for ohN %i mask %x chan %i", useCalPulse, ohN, ~((0x1)<<vfatN) & 0xFFFFFF, chan));
             return; //Calibration pulse is not configured correctly
