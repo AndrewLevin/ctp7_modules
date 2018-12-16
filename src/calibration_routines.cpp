@@ -922,6 +922,7 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
         ParamScan scanParams_modified(*scanParams);
         
         scanParams_modified.vfatMask = ~((0x1)<<vfatN) & 0xFFFFFF;
+        scanParams_modified.chan = chan;
         
         //Turn on the calpulse for this channel
         if (confCalPulseLocal(la, calParams, &scanParams_modified) == false){
