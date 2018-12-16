@@ -920,7 +920,6 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
         writeReg(la, stdsprintf("GEM_AMC.OH.OH%i.GEB.VFAT%i.VFAT_CHANNELS.CHANNEL%i.MASK",ohN,vfatN,chan), 0x0);
 
         ParamScan scanParams_modified(*scanParams);
-        
         scanParams_modified.vfatMask = ~((0x1)<<vfatN) & 0xFFFFFF;
         scanParams_modified.chan = chan;
         
@@ -970,12 +969,11 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
             } //End Loop over clusters
         } //End Pulses for this channel
 
-        ParamCalPulse calParams_modified(*calParams);
-        
-        calParams_modified.enable = false;
+        ParamCalPulse calParams_disabled(*calParams);
+        calParams_disabled.enable = false;
         
         //Turn off the calpulse for this channel
-        if (confCalPulseLocal(la, &calParams_modified, scanParams) == false){
+        if (confCalPulseLocal(la, &calParams_disabled, &scanParams_modified) == false){
             la->response->set_string("error",stdsprintf("Unable to configure calpulse OFF for ohN %i mask %x chan %i", ohN, ~((0x1)<<vfatN) & 0xFFFFFF, chan));
             return; //Calibration pulse is not configured correctly
         }
@@ -1198,9 +1196,9 @@ void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, ui
 
         //Turn off the calpulse for this channel
         LOGGER->log_message(LogManager::INFO, stdsprintf("Disabling calpulse for channel %i on vfat %i of OH %i", chan, vfatN, ohN));
-        ParamCalPulse calParams_modified(*calParams);
-        calParams_modified.enable = false;
-        if (confCalPulseLocal(la, &calParams_modified, &scanParams_modified) == false){
+        ParamCalPulse calParams_disabled(*calParams);
+        calParams_disabled.enable = false;
+        if (confCalPulseLocal(la, &calParams_disabled,&scanParams_modified) == false){
             la->response->set_string("error",stdsprintf("Unable to configure calpulse OFF for ohN %i mask %x chan %i", ohN, ~((0x1)<<vfatN) & 0xFFFFFF, chan));
             return; //Calibration pulse is not configured correctly
         }
@@ -1381,7 +1379,7 @@ std::vector<uint32_t> dacScanLocal(localArgs *la, ParamScan *scanParams, bool us
 
     //Scan the DAC
 
-    uint32_t nReads=100;
+    int32_t nReads=100;
     for(uint32_t dacVal=dacMin; dacVal<=dacMax; dacVal += dacStep){ //Loop over DAC values
         for(int vfatN=0; vfatN<24; ++vfatN){ //Loop over VFATs
             //Skip masked VFATs
