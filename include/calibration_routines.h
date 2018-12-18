@@ -101,7 +101,7 @@ void dacMonConfLocal(localArgs * la, ParamScan *scanParams);
  *  \param ohN Optical link
  *  \param enable See detailed mehod description
  */
-void ttcGenToggleLocal(localArgs * la, ParamScan *scanParams, ParamTtcGen *ttcParams);
+void ttcGenToggleLocal(localArgs * la, ParamScan *scanParams, ParamTTCGen *ttcParams);
 
 /*! \fn void ttcGenToggle(const RPCMsg *request, RPCMsg *response)
  *  \brief Toggles the TTC Generator
@@ -146,7 +146,7 @@ void ttcGenToggle(const RPCMsg *request, RPCMsg *response);
  *  \param nPulses Number of calibration pulses to generate
  *  \param enable If true (false) ignore (take) ttc commands from backplane for this AMC (affects all links)
  */
-void ttcGenConfLocal(localArgs * la, ParamScan *scanParams, ParamTtcGen *ttcParams);
+void ttcGenConfLocal(localArgs * la, ParamScan *scanParams, ParamTTCGen *ttcParams);
 
 /*! \fn void ttcGenConf(const RPCMsg *request, RPCMsg *response)
  *  \brief Configures TTC generator
@@ -279,7 +279,7 @@ void sbitRateScan(const RPCMsg *request, RPCMsg *response);
  *  \param L1Ainterval How often to repeat signals (only for enable = true)
  *  \param pulseDelay delay between CalPulse and L1A
  */
-void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, ParamScan *scanParams, ParamTtcGen *ttcParams);
+void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, ParamScan *scanParams, ParamTTCGen *ttcParams);
 
 /*! \fn void checkSbitMappingWithCalPulse(const RPCMsg *request, RPCMsg *response)
  *  \brief Checks the sbit mapping using the calibration pulse. See the local callable methods documentation for details
@@ -304,7 +304,7 @@ void checkSbitMappingWithCalPulse(const RPCMsg *request, RPCMsg *response);
  *  \param pulseRate rate of calpulses to be sent in Hz
  *  \param pulseDelay delay between CalPulse and L1A
  */
-void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, uint32_t *outDataFPGAClusterCntRate, uint32_t *outDataVFATSBits, ParamCalPulse *calParams, ParamScan *scanParams, ParamTtcGen *ttcParams);
+void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, uint32_t *outDataFPGAClusterCntRate, uint32_t *outDataVFATSBits, ParamCalPulse *calParams, ParamScan *scanParams, ParamTTCGen *ttcParams);
 
 /*! \fn void checkSbitRateWithCalPulse(const RPCMsg *request, RPCMsg *response)
  *  \brief Checks the sbit rate using the calibration pulse. See the local callable methods documentation for details

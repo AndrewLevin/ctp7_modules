@@ -129,7 +129,7 @@ void dacMonConfLocal(localArgs * la, ParamScan *scanParams)
     return;
 }
 
-void ttcGenToggleLocal(localArgs * la, ParamScan *scanParams, ParamTtcGen *ttcParams)
+void ttcGenToggleLocal(localArgs * la, ParamScan *scanParams, ParamTTCGen *ttcParams)
 {
 
     uint32_t ohN = scanParams->ohN;
@@ -187,7 +187,7 @@ void ttcGenToggle(const RPCMsg *request, RPCMsg *response)
     auto dbi = lmdb::dbi::open(rtxn, nullptr);
 
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
-    ParamTtcGen ttcParams;
+    ParamTTCGen ttcParams;
     ParamScan scanParams;
 
     scanParams.ohN = request->get_word("ohN");
@@ -199,7 +199,7 @@ void ttcGenToggle(const RPCMsg *request, RPCMsg *response)
     return;
 } //End ttcGenToggle(...)
 
-void ttcGenConfLocal(localArgs * la, ParamScan *scanParams, ParamTtcGen *ttcParams)
+void ttcGenConfLocal(localArgs * la, ParamScan *scanParams, ParamTTCGen *ttcParams)
 {
     uint32_t ohN = scanParams->ohN;
 
@@ -294,7 +294,7 @@ void ttcGenConf(const RPCMsg *request, RPCMsg *response)
     auto rtxn = lmdb::txn::begin(env, nullptr, MDB_RDONLY);
     auto dbi = lmdb::dbi::open(rtxn, nullptr);
 
-    ParamTtcGen ttcParams;
+    ParamTTCGen ttcParams;
     ParamScan scanParams;
 
     scanParams.ohN = request->get_word("ohN");
@@ -830,7 +830,7 @@ void sbitRateScan(const RPCMsg *request, RPCMsg *response)
     return;
 } //End sbitRateScan(...)
 
-void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, ParamScan *scanParams, ParamTtcGen *ttcParams) {
+void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, ParamScan *scanParams, ParamTTCGen *ttcParams) {
 
     bool useCalPulse = calParams->enable;
     bool currentPulse = calParams->isCurrent;
@@ -878,7 +878,7 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
     setChannelRegistersVFAT3SimpleLocal(la, ohN, mask, chanRegData_tmp);
 
     //Setup TTC Generator
-    ParamTtcGen ttcParams_modified(*ttcParams); 
+    ParamTTCGen ttcParams_modified(*ttcParams); 
     ttcParams_modified.mode = 0;
     ttcParams_modified.type = 0;
     ttcParams_modified.nPulses = nevts;
@@ -986,7 +986,7 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
     writeReg(la,stdsprintf("GEM_AMC.OH.OH%i.GEB.VFAT%i.CFG_RUN",ohN, vfatN), 0x0);
     //} //End Loop over all VFATs
 
-    ParamTtcGen ttcParams_disabled;
+    ParamTTCGen ttcParams_disabled;
     ttcParams_disabled.enable=false;
         
     //turn off TTC Generator
@@ -1024,7 +1024,7 @@ void checkSbitMappingWithCalPulse(const RPCMsg *request, RPCMsg *response){
 
     ParamCalPulse calParams;
     ParamScan scanParams;
-    ParamTtcGen ttcParams;
+    ParamTTCGen ttcParams;
 
     scanParams.ohN = ohN;
     scanParams.vfatN = vfatN;
@@ -1046,7 +1046,7 @@ void checkSbitMappingWithCalPulse(const RPCMsg *request, RPCMsg *response){
     return;
 } //End checkSbitMappingWithCalPulse()
 
-void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, uint32_t *outDataFPGAClusterCntRate, uint32_t *outDataVFATSBits, ParamCalPulse *calParams, ParamScan *scanParams, ParamTtcGen *ttcParams){
+void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, uint32_t *outDataFPGAClusterCntRate, uint32_t *outDataVFATSBits, ParamCalPulse *calParams, ParamScan *scanParams, ParamTTCGen *ttcParams){
 
     uint32_t ohN = scanParams->ohN;
     uint32_t vfatN = scanParams->vfatN;
@@ -1168,7 +1168,7 @@ void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, ui
         //Start the TTC Generator
         LOGGER->log_message(LogManager::INFO, stdsprintf("Configuring TTC Generator to use OH %i with pulse delay %i and L1Ainterval %i",ohN,pulseDelay,L1Ainterval));
 
-        ParamTtcGen ttcParams_modified(*ttcParams);
+        ParamTTCGen ttcParams_modified(*ttcParams);
         
         ttcParams_modified.mode = 0;
         ttcParams_modified.type = 0;
@@ -1215,7 +1215,7 @@ void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, ui
     //turn off TTC Generator
     LOGGER->log_message(LogManager::INFO, "Disabling TTC Generator");
 
-    ParamTtcGen ttcParams_disabled;
+    ParamTTCGen ttcParams_disabled;
     ttcParams_disabled.enable=false;
     
     ttcGenToggleLocal(la, scanParams, &ttcParams_disabled);
@@ -1252,7 +1252,7 @@ void checkSbitRateWithCalPulse(const RPCMsg *request, RPCMsg *response){
 
     ParamCalPulse calParams; 
     ParamScan scanParams;
-    ParamTtcGen ttcParams;
+    ParamTTCGen ttcParams;
     
     calParams.enable = useCalPulse;
     calParams.isCurrent = currentPulse;

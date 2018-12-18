@@ -88,10 +88,10 @@ struct ParamScan{
     }
 }; //End ParamScan
 
-/*! \struct ParamTtcGen
+/*! \struct ParamTTCGen
  *  Contains arguments related to ttc generation
  */
-struct ParamTtcGen{
+struct ParamTTCGen{
     bool enable; //If true (false) ignore (take) ttc commands from backplane for this AMC (affects all links)
 
     uint32_t L1Ainterval; //How often to repeat signals
@@ -101,7 +101,7 @@ struct ParamTtcGen{
     uint32_t pulseRate; //rate of calpulses to be sent in Hz
     uint32_t type; //Type of T1 signal to send
 
-    ParamTtcGen(){
+    ParamTTCGen(){
         enable = false;
 
         L1Ainterval = 250;
@@ -119,7 +119,7 @@ struct ParamTtcGen{
 
         return pulseRate;
     }
-}; //End ParamTtcGen
+}; //End ParamTTCGen
 
 /*! \struct localArgs
  *  Contains arguments required to execute the method locally
