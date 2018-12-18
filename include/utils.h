@@ -65,10 +65,10 @@ struct ParamScan{
     bool useUltra;   //Set to 1 in order to use the ultra scan
     bool useExtTrig; //Set to 1 in order to use the backplane triggers
 
-    uint32_t dacMax;    //Maximum dac value
-    uint32_t dacMin;    //Minimum dac value
+    uint32_t max;    //Maximum dac value
+    uint32_t min;    //Minimum dac value
     uint32_t dacSelect; //DAC to use for Monitoring
-    uint32_t dacStep;   //step size for dac
+    uint32_t step;   //step size for dac
     uint32_t nevts;     //Number of events
     uint32_t waitTime;  //unit of time; uints depend on function
 
@@ -81,9 +81,9 @@ struct ParamScan{
         useUltra = true;
         useExtTrig = false;
 
-        dacMax=254;
-        dacMin=0;
-        dacStep=1;
+        max=254;
+        min=0;
+        step=1;
         nevts=100;
     }
 }; //End ParamScan

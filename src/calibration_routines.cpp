@@ -325,9 +325,9 @@ void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, Pa
     uint32_t nevts = scanParams->nevts;
     uint32_t mask = scanParams->vfatMask;
     uint32_t ch = scanParams->chan;
-    uint32_t dacMin = scanParams->dacMin;
-    uint32_t dacMax = scanParams->dacMax;
-    uint32_t dacStep = scanParams->dacStep;
+    uint32_t dacMin = scanParams->min;
+    uint32_t dacMax = scanParams->max;
+    uint32_t dacStep = scanParams->step;
     std::string scanReg = scanParams->scanReg;
 
     //Determine the inverse of the vfatmask
@@ -560,9 +560,9 @@ void genScan(const RPCMsg *request, RPCMsg *response)
     scanParams.vfatMask = request->get_word("mask");
     scanParams.chan = request->get_word("ch");
     scanParams.nevts = request->get_word("nevts");
-    scanParams.dacMin = request->get_word("dacMin");
-    scanParams.dacMax = request->get_word("dacMax");
-    scanParams.dacStep = request->get_word("dacStep");
+    scanParams.min = request->get_word("dacMin");
+    scanParams.max = request->get_word("dacMax");
+    scanParams.step = request->get_word("dacStep");
     scanParams.scanReg = request->get_string("scanReg");
 
     calParams.enable = request->get_word("useCalPulse");
@@ -575,10 +575,10 @@ void genScan(const RPCMsg *request, RPCMsg *response)
     scanParams.useExtTrig = request->get_word("useExtTrig");
 
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
-    uint32_t outData[24*(scanParams.dacMax-scanParams.dacMin+1)/scanParams.dacStep];
+    uint32_t outData[24*(scanParams.max-scanParams.min+1)/scanParams.step];
 
     genScanLocal(&la, outData, &calParams, &scanParams);
-    response->set_word_array("data",outData,24*(scanParams.dacMax-scanParams.dacMin+1)/scanParams.dacStep);
+    response->set_word_array("data",outData,24*(scanParams.max-scanParams.min+1)/scanParams.step);
 
     return;
 }
@@ -589,9 +589,9 @@ void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outData
     uint32_t ohN = scanParams->ohN;
     uint32_t maskOh = scanParams->ohMask;
     uint32_t ch = scanParams->chan;
-    uint32_t dacMin = scanParams->dacMin;
-    uint32_t dacMax = scanParams->dacMax;
-    uint32_t dacStep = scanParams->dacStep;
+    uint32_t dacMin = scanParams->min;
+    uint32_t dacMax = scanParams->max;
+    uint32_t dacStep = scanParams->step;
     std::string scanReg = scanParams->scanReg;
     uint32_t waitTime = scanParams->waitTime;
 
@@ -695,9 +695,9 @@ void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t 
     uint32_t ohN = scanParams->ohN;
     uint32_t vfatmask = scanParams->ohN;
     uint32_t ch = scanParams->chan;
-    uint32_t dacMin = scanParams->dacMin;
-    uint32_t dacMax = scanParams->dacMax;
-    uint32_t dacStep = scanParams->dacStep;
+    uint32_t dacMin = scanParams->min;
+    uint32_t dacMax = scanParams->max;
+    uint32_t dacStep = scanParams->step;
     std::string scanReg = scanParams->scanReg ;
 
     char regBuf[200];
@@ -802,9 +802,9 @@ void sbitRateScan(const RPCMsg *request, RPCMsg *response)
     scanParams.ohN = request->get_word("ohN");
     scanParams.ohMask = request->get_word("maskOh");
     scanParams.chan = request->get_word("ch");
-    scanParams.dacMin = request->get_word("dacMin");
-    scanParams.dacMax = request->get_word("dacMax");
-    scanParams.dacStep = request->get_word("dacStep");
+    scanParams.min = request->get_word("dacMin");
+    scanParams.max = request->get_word("dacMax");
+    scanParams.step = request->get_word("dacStep");
     scanParams.scanReg = request->get_string("scanReg");
     scanParams.waitTime = request->get_word("waitTime");
 
@@ -812,20 +812,20 @@ void sbitRateScan(const RPCMsg *request, RPCMsg *response)
     bool isParallel = request->get_word("isParallel");
 
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
-    uint32_t outDataDacVal[(scanParams.dacMax-scanParams.dacMin+1)/scanParams.dacStep];
-    uint32_t outDataTrigRate[(scanParams.dacMax-scanParams.dacMin+1)/scanParams.dacStep];
+    uint32_t outDataDacVal[(scanParams.max-scanParams.min+1)/scanParams.step];
+    uint32_t outDataTrigRate[(scanParams.max-scanParams.min+1)/scanParams.step];
     if(isParallel){
-        uint32_t outDataTrigRatePerVFAT[24*(scanParams.dacMax-scanParams.dacMin+1)/scanParams.dacStep];
+        uint32_t outDataTrigRatePerVFAT[24*(scanParams.max-scanParams.min+1)/scanParams.step];
         sbitRateScanParallelLocal(&la, outDataDacVal, outDataTrigRatePerVFAT, outDataTrigRate, &scanParams);
 
-        response->set_word_array("outDataVFATRate", outDataTrigRatePerVFAT, 24*(scanParams.dacMax-scanParams.dacMin+1)/scanParams.dacStep);
+        response->set_word_array("outDataVFATRate", outDataTrigRatePerVFAT, 24*(scanParams.max-scanParams.min+1)/scanParams.step);
     }
     else{
         sbitRateScanLocal(&la, outDataDacVal, outDataTrigRate, &scanParams, invertVFATPos);
     }
 
-    response->set_word_array("outDataDacValue", outDataDacVal, (scanParams.dacMax-scanParams.dacMin+1)/scanParams.dacStep);
-    response->set_word_array("outDataCTP7Rate", outDataTrigRate, (scanParams.dacMax-scanParams.dacMin+1)/scanParams.dacStep);
+    response->set_word_array("outDataDacValue", outDataDacVal, (scanParams.max-scanParams.min+1)/scanParams.step);
+    response->set_word_array("outDataCTP7Rate", outDataTrigRate, (scanParams.max-scanParams.min+1)/scanParams.step);
 
     return;
 } //End sbitRateScan(...)
@@ -1284,7 +1284,7 @@ std::vector<uint32_t> dacScanLocal(localArgs *la, ParamScan *scanParams, bool us
 
     uint32_t ohN = scanParams->ohN;
     uint32_t dacSelect = scanParams->dacSelect;
-    uint32_t dacStep = scanParams->dacStep;
+    uint32_t dacStep = scanParams->step;
     uint32_t mask = scanParams->vfatMask;
 
     //Ensure VFAT3 Hardware
@@ -1441,7 +1441,7 @@ void dacScan(const RPCMsg *request, RPCMsg *response){
 
     scanParams.ohN = ohN;
     scanParams.dacSelect = dacSelect;
-    scanParams.dacStep = dacStep;
+    scanParams.step = dacStep;
     scanParams.vfatMask = mask;
     
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
@@ -1497,7 +1497,7 @@ void dacScanMultiLink(const RPCMsg *request, RPCMsg *response){
 
         scanParams.ohN = ohN;
         scanParams.dacSelect = dacSelect;
-        scanParams.dacStep = dacStep;
+        scanParams.step = dacStep;
         scanParams.vfatMask = vfatMask;
         
         //Get dac scan results for this optohybrid
@@ -1556,9 +1556,9 @@ void genChannelScan(const RPCMsg *request, RPCMsg *response)
         scanParams.vfatMask = mask;
         scanParams.chan = ch;
         scanParams.nevts = nevts;
-        scanParams.dacMin = dacMin;
-        scanParams.dacMax = dacMax;
-        scanParams.dacStep = dacStep;
+        scanParams.min = dacMin;
+        scanParams.max = dacMax;
+        scanParams.step = dacStep;
         scanParams.scanReg = scanReg;
         scanParams.useUltra = useUltra;
         scanParams.useExtTrig = useExtTrig;

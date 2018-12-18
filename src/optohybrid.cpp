@@ -254,9 +254,9 @@ void configureScanModuleLocal(localArgs * la, uint32_t scanmode, ParamScan *scan
     uint32_t mask = scanParams->vfatMask;
     uint32_t ch = scanParams->chan;
     uint32_t nevts = scanParams->nevts;
-    uint32_t dacMin = scanParams->dacMin;
-    uint32_t dacMax = scanParams->dacMax;
-    uint32_t dacStep = scanParams->dacStep;
+    uint32_t dacMin = scanParams->min;
+    uint32_t dacMax = scanParams->max;
+    uint32_t dacStep = scanParams->step;
 
     /*
      *     Configure the firmware scan controller
@@ -341,9 +341,9 @@ void configureScanModule(const RPCMsg *request, RPCMsg *response){
 
     scanParams.chan = request->get_word("ch");
     scanParams.nevts = request->get_word("nevts");
-    scanParams.dacMin = request->get_word("dacMin");
-    scanParams.dacMax = request->get_word("dacMax");
-    scanParams.dacStep = request->get_word("dacStep");
+    scanParams.min = request->get_word("dacMin");
+    scanParams.max = request->get_word("dacMax");
+    scanParams.step = request->get_word("dacStep");
 
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
     configureScanModuleLocal(&la, scanmode, &scanParams);
@@ -475,9 +475,9 @@ void getUltraScanResultsLocal(localArgs * la, uint32_t *outData, ParamScan *scan
 {
     uint32_t ohN = scanParams->ohN;
     uint32_t nevts = scanParams->nevts;
-    uint32_t dacMin = scanParams->dacMin;
-    uint32_t dacMax = scanParams->dacMax;
-    uint32_t dacStep = scanParams->dacStep;
+    uint32_t dacMin = scanParams->min;
+    uint32_t dacMax = scanParams->max;
+    uint32_t dacStep = scanParams->step;
     
     std::stringstream sstream;
     sstream<<ohN;
@@ -551,15 +551,15 @@ void getUltraScanResults(const RPCMsg *request, RPCMsg *response){
     ParamScan scanParams;
     scanParams.ohN = request->get_word("ohN");
     scanParams.nevts = request->get_word("nevts");
-    scanParams.dacMin = request->get_word("dacMin");
-    scanParams.dacMax = request->get_word("dacMax");
-    scanParams.dacStep = request->get_word("dacStep");
+    scanParams.min = request->get_word("dacMin");
+    scanParams.max = request->get_word("dacMax");
+    scanParams.step = request->get_word("dacStep");
 
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
-    uint32_t outData[24*(scanParams.dacMax-scanParams.dacMin+1)/scanParams.dacStep];
+    uint32_t outData[24*(scanParams.max-scanParams.min+1)/scanParams.step];
 
     getUltraScanResultsLocal(&la, outData, &scanParams);
-    response->set_word_array("data",outData,24*(scanParams.dacMax-scanParams.dacMin+1)/scanParams.dacStep);
+    response->set_word_array("data",outData,24*(scanParams.max-scanParams.min+1)/scanParams.step);
 
     return;
 } //End getUltraScanResults(...)
