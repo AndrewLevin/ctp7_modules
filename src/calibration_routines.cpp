@@ -1502,7 +1502,7 @@ void dacScanMultiLink(const RPCMsg *request, RPCMsg *response){
         
         //Get dac scan results for this optohybrid
         LOGGER->log_message(LogManager::INFO, stdsprintf("Performing DAC Scan for OH%i", ohN));
-        dacScanResults = dacScanLocal(&la, &scanParams, useExtRefADC);        
+        dacScanResults = dacScanLocal(&la, &scanParams, useExtRefADC);
 
         //Copy the results into the final container
         LOGGER->log_message(LogManager::INFO, stdsprintf("Storing results of DAC scan for OH%i", ohN));
