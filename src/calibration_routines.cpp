@@ -205,8 +205,8 @@ void ttcGenConfLocal(localArgs * la, ParamScan *scanParams, ParamTTCGen *ttcPara
 
     uint32_t mode = ttcParams->mode;
     uint32_t type = ttcParams->type;
-    uint32_t pulseDelay = ttcParams->pulseDelay;
-    uint32_t L1Ainterval = ttcParams->L1Ainterval;
+    uint32_t pulseDelay = ttcParams->delay;
+    uint32_t L1Ainterval = ttcParams->interval;
     uint32_t nPulses = ttcParams->nPulses;
     
     //Check firmware version
@@ -301,13 +301,13 @@ void ttcGenConf(const RPCMsg *request, RPCMsg *response)
     
     ttcParams.mode = request->get_word("mode");
     ttcParams.type = request->get_word("type");
-    ttcParams.pulseDelay = request->get_word("pulseDelay");
-    ttcParams.L1Ainterval = request->get_word("L1Ainterval");
+    ttcParams.delay = request->get_word("pulseDelay");
+    ttcParams.interval = request->get_word("L1Ainterval");
     ttcParams.nPulses = request->get_word("nPulses");
     ttcParams.enable = request->get_word("enable");
     
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
-    LOGGER->log_message(LogManager::INFO, stdsprintf("Calling ttcGenConfLocal with ohN : %i, mode : %i, type : %i, pulse delay : %i, L1A interval : %i, number of pulses : %i", scanParams.ohN,ttcParams.mode,ttcParams.type,ttcParams.pulseDelay,ttcParams.L1Ainterval,ttcParams.nPulses));
+    LOGGER->log_message(LogManager::INFO, stdsprintf("Calling ttcGenConfLocal with ohN : %i, mode : %i, type : %i, pulse delay : %i, L1A interval : %i, number of pulses : %i", scanParams.ohN,ttcParams.mode,ttcParams.type,ttcParams.delay,ttcParams.interval,ttcParams.nPulses));
     ttcGenConfLocal(&la, &scanParams, &ttcParams);    
 
     return;
@@ -841,7 +841,7 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
     uint32_t mask = scanParams->vfatMask;
     uint32_t nevts = scanParams->nevts;
 
-    uint32_t pulseDelay = ttcParams->pulseDelay;
+    uint32_t pulseDelay = ttcParams->delay;
 
     //Determine the inverse of the vfatmask
     uint32_t notmask = ~mask & 0xFFFFFF;
@@ -1035,8 +1035,8 @@ void checkSbitMappingWithCalPulse(const RPCMsg *request, RPCMsg *response){
     calParams.isCurrent = currentPulse;
     calParams.scaleFactor = calScaleFactor;
 
-    ttcParams.L1Ainterval = L1Ainterval;
-    ttcParams.pulseDelay = pulseDelay;
+    ttcParams.interval = L1Ainterval;
+    ttcParams.delay = pulseDelay;
     
     uint32_t outData[128*8*nevts];
     checkSbitMappingWithCalPulseLocal(&la, outData, &calParams, &scanParams, &ttcParams);
@@ -1058,7 +1058,7 @@ void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, ui
     uint32_t calScaleFactor = calParams->scaleFactor;
 
     uint32_t pulseRate = ttcParams->pulseRate;
-    uint32_t pulseDelay = ttcParams->pulseDelay;
+    uint32_t pulseDelay = ttcParams->delay;
     
     //Determine the inverse of the vfatmask
     uint32_t notmask = ~mask & 0xFFFFFF;
@@ -1264,7 +1264,7 @@ void checkSbitRateWithCalPulse(const RPCMsg *request, RPCMsg *response){
     scanParams.waitTime = waitTime;
     
     ttcParams.pulseRate = pulseRate;
-    ttcParams.pulseDelay = pulseDelay;
+    ttcParams.delay = pulseDelay;
     
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
     uint32_t outDataCTP7Rate[128];

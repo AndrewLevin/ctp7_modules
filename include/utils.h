@@ -94,24 +94,24 @@ struct ParamScan{
 struct ParamTTCGen{
     bool enable; //If true (false) ignore (take) ttc commands from backplane for this AMC (affects all links)
 
-    uint32_t L1Ainterval; //How often to repeat signals
+    uint32_t interval; //How often to repeat signals
     uint32_t mode; //T1 controller mode
     uint32_t nPulses; //Number of calibration pulses to generate
-    uint32_t pulseDelay; //Delay between CalPulse and L1A
+    uint32_t delay; //Delay between CalPulse and L1A
     uint32_t pulseRate; //rate of calpulses to be sent in Hz
     uint32_t type; //Type of T1 signal to send
 
     ParamTTCGen(){
         enable = false;
 
-        L1Ainterval = 250;
-        pulseDelay = 40;
-        pulseRate = 40079000 / L1Ainterval;
+        interval = 250;
+        delay = 40;
+        pulseRate = 40079000 / interval;
     }
 
     uint32_t calcRate(){
-        if(L1Ainterval > 0){
-            pulseRate = 40079000 / L1Ainterval;
+        if(interval > 0){
+            pulseRate = 40079000 / interval;
         }
         else{
             pulseRate = 0;
