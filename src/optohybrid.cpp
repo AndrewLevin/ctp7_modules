@@ -248,10 +248,9 @@ void configureVFATs(const RPCMsg *request, RPCMsg *response) {
 
 void configureScanModuleLocal(localArgs * la, uint32_t scanmode, ParamScan *scanParams)
 {
-    uint32_t ohN = scanParams->ohN;
-    uint32_t vfatN = scanParams->vfatN;
+    uint32_t ohN = scanParams->oh;
     bool useUltra = scanParams->useUltra;
-    uint32_t mask = scanParams->vfatMask;
+    uint32_t vfat = scanParams->vfat; //if using ultra, this should be a VFAT mask; if not using ultra, this should be a VFAT number
     uint32_t ch = scanParams->chan;
     uint32_t nevts = scanParams->nevts;
     uint32_t dacMin = scanParams->min;
@@ -290,10 +289,10 @@ void configureScanModuleLocal(localArgs * la, uint32_t scanmode, ParamScan *scan
     // write scan parameters
     writeReg(la, scanBase + ".MODE", scanmode);
     if (useUltra){
-        writeReg(la, scanBase + ".MASK", mask);
+        writeReg(la, scanBase + ".MASK", vfat);
     }
     else{
-        writeReg(la, scanBase + ".CHIP", vfatN);
+        writeReg(la, scanBase + ".CHIP", vfat);
     }
     writeReg(la, scanBase + ".CHAN", ch);
     writeReg(la, scanBase + ".NTRIGS", nevts);
@@ -327,16 +326,16 @@ void configureScanModule(const RPCMsg *request, RPCMsg *response){
     ParamScan scanParams;
     
     //Get OH and scanmode
-    scanParams.ohN = request->get_word("ohN");
+    scanParams.oh = request->get_word("ohN");
     uint32_t scanmode = request->get_word("scanmode");
 
     //Setup ultra mode, mask, and/or vfat number
     if (request->get_key_exists("useUltra")){
         scanParams.useUltra = true;
-        scanParams.vfatMask = request->get_word("mask");
+        scanParams.vfat = request->get_word("mask");
     }
     else{
-        scanParams.vfatN = request->get_word("vfatN");
+        scanParams.vfat = request->get_word("vfatN");
     }
 
     scanParams.chan = request->get_word("ch");
@@ -473,7 +472,7 @@ void startScanModule(const RPCMsg *request, RPCMsg *response){
 
 void getUltraScanResultsLocal(localArgs * la, uint32_t *outData, ParamScan *scanParams)
 {
-    uint32_t ohN = scanParams->ohN;
+    uint32_t ohN = scanParams->oh;
     uint32_t nevts = scanParams->nevts;
     uint32_t dacMin = scanParams->min;
     uint32_t dacMax = scanParams->max;
@@ -549,7 +548,7 @@ void getUltraScanResults(const RPCMsg *request, RPCMsg *response){
     auto dbi = lmdb::dbi::open(rtxn, nullptr);
 
     ParamScan scanParams;
-    scanParams.ohN = request->get_word("ohN");
+    scanParams.oh = request->get_word("ohN");
     scanParams.nevts = request->get_word("nevts");
     scanParams.min = request->get_word("dacMin");
     scanParams.max = request->get_word("dacMax");

@@ -38,8 +38,8 @@ void applyChanMask(std::unordered_map<uint32_t, uint32_t> map_chanOrigMask, loca
 
 bool confCalPulseLocal(localArgs *la, ParamCalPulse *calParams, ParamScan *scanParams){
 
-    uint32_t ohN = scanParams->ohN;
-    uint32_t mask = scanParams->vfatMask;
+    uint32_t ohN = scanParams->oh;
+    uint32_t mask = scanParams->vfat;
     uint32_t ch = scanParams->chan;
     
     bool toggleOn = calParams->enable;
@@ -96,7 +96,7 @@ bool confCalPulseLocal(localArgs *la, ParamCalPulse *calParams, ParamScan *scanP
 void dacMonConfLocal(localArgs * la, ParamScan *scanParams)
 {
 
-    uint32_t ohN = scanParams->ohN;
+    uint32_t ohN = scanParams->oh;
     uint32_t ch = scanParams->chan;
     
     //Check the firmware version
@@ -132,7 +132,7 @@ void dacMonConfLocal(localArgs * la, ParamScan *scanParams)
 void ttcGenToggleLocal(localArgs * la, ParamScan *scanParams, ParamTTCGen *ttcParams)
 {
 
-    uint32_t ohN = scanParams->ohN;
+    uint32_t ohN = scanParams->oh;
 
     bool enable = ttcParams->enable;
     
@@ -190,7 +190,7 @@ void ttcGenToggle(const RPCMsg *request, RPCMsg *response)
     ParamTTCGen ttcParams;
     ParamScan scanParams;
 
-    scanParams.ohN = request->get_word("ohN");
+    scanParams.oh = request->get_word("ohN");
     
     ttcParams.enable = request->get_word("enable");
 
@@ -201,7 +201,7 @@ void ttcGenToggle(const RPCMsg *request, RPCMsg *response)
 
 void ttcGenConfLocal(localArgs * la, ParamScan *scanParams, ParamTTCGen *ttcParams)
 {
-    uint32_t ohN = scanParams->ohN;
+    uint32_t ohN = scanParams->oh;
 
     uint32_t mode = ttcParams->mode;
     uint32_t type = ttcParams->type;
@@ -297,7 +297,7 @@ void ttcGenConf(const RPCMsg *request, RPCMsg *response)
     ParamTTCGen ttcParams;
     ParamScan scanParams;
 
-    scanParams.ohN = request->get_word("ohN");
+    scanParams.oh = request->get_word("ohN");
     
     ttcParams.mode = request->get_word("mode");
     ttcParams.type = request->get_word("type");
@@ -307,7 +307,7 @@ void ttcGenConf(const RPCMsg *request, RPCMsg *response)
     ttcParams.enable = request->get_word("enable");
     
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
-    LOGGER->log_message(LogManager::INFO, stdsprintf("Calling ttcGenConfLocal with ohN : %i, mode : %i, type : %i, pulse delay : %i, L1A interval : %i, number of pulses : %i", scanParams.ohN,ttcParams.mode,ttcParams.type,ttcParams.delay,ttcParams.interval,ttcParams.nPulses));
+    LOGGER->log_message(LogManager::INFO, stdsprintf("Calling ttcGenConfLocal with ohN : %i, mode : %i, type : %i, pulse delay : %i, L1A interval : %i, number of pulses : %i", scanParams.oh,ttcParams.mode,ttcParams.type,ttcParams.delay,ttcParams.interval,ttcParams.nPulses));
     ttcGenConfLocal(&la, &scanParams, &ttcParams);    
 
     return;
@@ -321,9 +321,9 @@ void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, Pa
     
     bool useExtTrig = scanParams->useExtTrig;
     bool useUltra = scanParams->useUltra; 
-    uint32_t ohN = scanParams->ohN;
+    uint32_t ohN = scanParams->oh;
     uint32_t nevts = scanParams->nevts;
-    uint32_t mask = scanParams->vfatMask;
+    uint32_t mask = scanParams->vfat;
     uint32_t ch = scanParams->chan;
     uint32_t dacMin = scanParams->min;
     uint32_t dacMax = scanParams->max;
@@ -489,7 +489,7 @@ void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, Pa
                 //If we are not performing an ultraScan, take the first non-masked VFAT
                 for(int vfat=0; vfat<24; ++vfat){
                     if((notmask >> vfat) & 0x1){
-                        scanParams_modified.vfatN = vfat; 
+                        scanParams_modified.vfat = vfat; 
                         break;
                     }
                 }
@@ -556,8 +556,8 @@ void genScan(const RPCMsg *request, RPCMsg *response)
     ParamScan scanParams;
     ParamCalPulse calParams;
 
-    scanParams.ohN = request->get_word("ohN");
-    scanParams.vfatMask = request->get_word("mask");
+    scanParams.oh = request->get_word("ohN");
+    scanParams.vfat = request->get_word("mask");
     scanParams.chan = request->get_word("ch");
     scanParams.nevts = request->get_word("nevts");
     scanParams.min = request->get_word("dacMin");
@@ -586,8 +586,8 @@ void genScan(const RPCMsg *request, RPCMsg *response)
 void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outDataTrigRate, ParamScan *scanParams, bool invertVFATPos)
 {
 
-    uint32_t ohN = scanParams->ohN;
-    uint32_t maskOh = scanParams->ohMask;
+    uint32_t ohN = scanParams->oh;
+    uint32_t maskOh = scanParams->vfat;
     uint32_t ch = scanParams->chan;
     uint32_t dacMin = scanParams->min;
     uint32_t dacMax = scanParams->max;
@@ -692,8 +692,8 @@ void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outData
 
 void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outDataTrigRatePerVFAT, uint32_t *outDataTrigRateOverall,ParamScan *scanParams)
 {
-    uint32_t ohN = scanParams->ohN;
-    uint32_t vfatmask = scanParams->vfatMask;
+    uint32_t ohN = scanParams->oh;
+    uint32_t vfatmask = scanParams->vfat;    
     uint32_t ch = scanParams->chan;
     uint32_t dacMin = scanParams->min;
     uint32_t dacMax = scanParams->max;
@@ -712,7 +712,7 @@ void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t 
                 la->response->set_string("error",regBuf);
                 return;
             }
-
+                
             //If ch!=128 store the original channel mask settings
             //Then mask all other channels except for channel ch
             std::unordered_map<uint32_t, uint32_t> map_chanOrigMask[24]; //key -> reg addr; val -> reg value
@@ -799,8 +799,8 @@ void sbitRateScan(const RPCMsg *request, RPCMsg *response)
 
     ParamScan scanParams;
 
-    scanParams.ohN = request->get_word("ohN");
-    scanParams.ohMask = request->get_word("maskOh");
+    scanParams.oh = request->get_word("ohN");
+    scanParams.vfat = request->get_word("maskOh");
     scanParams.chan = request->get_word("ch");
     scanParams.min = request->get_word("dacMin");
     scanParams.max = request->get_word("dacMax");
@@ -836,15 +836,11 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
     bool currentPulse = calParams->isCurrent;
     uint32_t calScaleFactor = calParams->scaleFactor;
     
-    uint32_t ohN = scanParams->ohN;
-    uint32_t vfatN = scanParams->vfatN;
-    uint32_t mask = scanParams->vfatMask;
+    uint32_t ohN = scanParams->oh;
+    uint32_t vfatN = scanParams->vfat;
     uint32_t nevts = scanParams->nevts;
 
     uint32_t pulseDelay = ttcParams->delay;
-
-    //Determine the inverse of the vfatmask
-    uint32_t notmask = ~mask & 0xFFFFFF;
 
     char regBuf[200];
     if( fw_version_check("checkSbitMappingWithCalPulse", la) < 3){
@@ -855,12 +851,8 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
     }
 
     uint32_t goodVFATs = vfatSyncCheckLocal(la, ohN);
-    if( (notmask & goodVFATs) != notmask){
-        sprintf(regBuf,"One of the unmasked VFATs is not Synced. goodVFATs: %x\tnotmask: %x",goodVFATs,notmask);
-        la->response->set_string("error",regBuf);
-        return;
-    }
-
+    uint32_t mask = ~goodVFATs & 0xFFFFFF;
+    
     if (currentPulse && calScaleFactor > 3){
         sprintf(regBuf,"Bad value for CFG_CAL_FS: %x, Possible values are {0b00, 0b01, 0b10, 0b11}. Exiting.",calScaleFactor);
         la->response->set_string("error",regBuf);
@@ -904,7 +896,7 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
         addrSbitCluster[iCluster] = getAddress(la, regBuf);
     }
 
-    if(!((notmask >> vfatN) & 0x1)){
+    if(!((goodVFATs >> vfatN) & 0x1)){
         la->response->set_string("error",stdsprintf("The vfat of interest %i should not be part of the vfats to be masked: %x",vfatN, mask));
         return;
     }
@@ -920,7 +912,7 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
         writeReg(la, stdsprintf("GEM_AMC.OH.OH%i.GEB.VFAT%i.VFAT_CHANNELS.CHANNEL%i.MASK",ohN,vfatN,chan), 0x0);
 
         ParamScan scanParams_modified(*scanParams);
-        scanParams_modified.vfatMask = ~((0x1)<<vfatN) & 0xFFFFFF;
+        scanParams_modified.vfat = ~((0x1)<<vfatN) & 0xFFFFFF;
         scanParams_modified.chan = chan;
         
         //Turn on the calpulse for this channel
@@ -1010,47 +1002,35 @@ void checkSbitMappingWithCalPulse(const RPCMsg *request, RPCMsg *response){
     auto rtxn = lmdb::txn::begin(env, nullptr, MDB_RDONLY);
     auto dbi = lmdb::dbi::open(rtxn, nullptr);
 
-    uint32_t ohN = request->get_word("ohN");
-    uint32_t vfatN = request->get_word("vfatN");
-    uint32_t mask = request->get_word("mask");
-    bool useCalPulse = request->get_word("useCalPulse");
-    bool currentPulse = request->get_word("currentPulse");
-    uint32_t calScaleFactor = request->get_word("calScaleFactor");
-    uint32_t nevts = request->get_word("nevts");
-    uint32_t L1Ainterval = request->get_word("L1Ainterval");
-    uint32_t pulseDelay = request->get_word("pulseDelay");
-
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
 
     ParamCalPulse calParams;
     ParamScan scanParams;
     ParamTTCGen ttcParams;
 
-    scanParams.ohN = ohN;
-    scanParams.vfatN = vfatN;
-    scanParams.vfatMask = mask;
-    scanParams.nevts = nevts;
+    scanParams.oh = request->get_word("ohN");
+    scanParams.vfat = request->get_word("vfatN");
+    scanParams.nevts = request->get_word("nevts");
 
-    calParams.enable = useCalPulse;
-    calParams.isCurrent = currentPulse;
-    calParams.scaleFactor = calScaleFactor;
+    calParams.enable = request->get_word("useCalPulse");
+    calParams.isCurrent = request->get_word("currentPulse");
+    calParams.scaleFactor = request->get_word("calScaleFactor");
 
-    ttcParams.interval = L1Ainterval;
-    ttcParams.delay = pulseDelay;
+    ttcParams.interval = request->get_word("L1Ainterval");
+    ttcParams.delay = request->get_word("pulseDelay");
     
-    uint32_t outData[128*8*nevts];
+    uint32_t outData[128*8*scanParams.nevts];
     checkSbitMappingWithCalPulseLocal(&la, outData, &calParams, &scanParams, &ttcParams);
 
-    response->set_word_array("data",outData,128*8*nevts);
+    response->set_word_array("data",outData,128*8*scanParams.nevts);
 
     return;
 } //End checkSbitMappingWithCalPulse()
 
 void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, uint32_t *outDataFPGAClusterCntRate, uint32_t *outDataVFATSBits, ParamCalPulse *calParams, ParamScan *scanParams, ParamTTCGen *ttcParams){
 
-    uint32_t ohN = scanParams->ohN;
-    uint32_t vfatN = scanParams->vfatN;
-    uint32_t mask = scanParams->vfatMask;
+    uint32_t ohN = scanParams->oh;
+    uint32_t vfatN = scanParams->vfat;
     uint32_t waitTime = scanParams->waitTime;
 
     bool useCalPulse = calParams->enable;
@@ -1060,9 +1040,6 @@ void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, ui
     uint32_t pulseRate = ttcParams->pulseRate;
     uint32_t pulseDelay = ttcParams->delay;
     
-    //Determine the inverse of the vfatmask
-    uint32_t notmask = ~mask & 0xFFFFFF;
-
     char regBuf[200];
     if( fw_version_check("checkSbitRateWithCalPulse", la) < 3){
         LOGGER->log_message(LogManager::ERROR, "checkSbitRateWithCalPulse is only supported in V3 electronics");
@@ -1072,12 +1049,8 @@ void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, ui
     }
 
     uint32_t goodVFATs = vfatSyncCheckLocal(la, ohN);
-    if( (notmask & goodVFATs) != notmask){
-        sprintf(regBuf,"One of the unmasked VFATs is not Synced. goodVFATs: %x\tnotmask: %x",goodVFATs,notmask);
-        la->response->set_string("error",regBuf);
-        return;
-    }
-
+    uint32_t mask = ~goodVFATs & 0xFFFFFF;
+    
     if (currentPulse && calScaleFactor > 3){
         sprintf(regBuf,"Bad value for CFG_CAL_FS: %x, Possible values are {0b00, 0b01, 0b10, 0b11}. Exiting.",calScaleFactor);
         la->response->set_string("error",regBuf);
@@ -1130,7 +1103,7 @@ void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, ui
     writeReg(la, stdsprintf("GEM_AMC.OH.OH%i.FPGA.TRIG.CNT.SBIT_CNT_PERSIST",ohN), 0x0); //reset all counters after SBIT_CNT_TIME_MAX
     writeReg(la, stdsprintf("GEM_AMC.OH.OH%i.FPGA.TRIG.CNT.SBIT_CNT_TIME_MAX",ohN), uint32_t(0x02638e98*waitTime/1000.) ); //count for a number of BX's specified by waitTime
 
-    if(!((notmask >> vfatN) & 0x1)){
+    if(!((goodVFATs >> vfatN) & 0x1)){
         la->response->set_string("error",stdsprintf("The vfat of interest %i should not be part of the vfats to be masked: %x",vfatN, mask));
         return;
     }
@@ -1152,7 +1125,7 @@ void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, ui
         //Turn on the calpulse for this channel
         LOGGER->log_message(LogManager::INFO, stdsprintf("Enabling calpulse for channel %i on vfat %i of OH %i", chan, vfatN, ohN));
         ParamScan scanParams_modified(*scanParams);
-        scanParams_modified.vfatMask = ~((0x1)<<vfatN) & 0xFFFFFF;
+        scanParams_modified.vfat = ~((0x1)<<vfatN) & 0xFFFFFF;
         scanParams_modified.chan = chan;
         if (confCalPulseLocal(la, calParams, &scanParams_modified) == false){
             la->response->set_string("error",stdsprintf("Unable to configure calpulse %b for ohN %i mask %x chan %i", useCalPulse, ohN, ~((0x1)<<vfatN) & 0xFFFFFF, chan));
@@ -1240,31 +1213,20 @@ void checkSbitRateWithCalPulse(const RPCMsg *request, RPCMsg *response){
     auto rtxn = lmdb::txn::begin(env, nullptr, MDB_RDONLY);
     auto dbi = lmdb::dbi::open(rtxn, nullptr);
 
-    uint32_t ohN = request->get_word("ohN");
-    uint32_t vfatN = request->get_word("vfatN");
-    uint32_t mask = request->get_word("mask");
-    bool useCalPulse = request->get_word("useCalPulse");
-    bool currentPulse = request->get_word("currentPulse");
-    uint32_t calScaleFactor = request->get_word("calScaleFactor");
-    uint32_t waitTime = request->get_word("waitTime");
-    uint32_t pulseRate = request->get_word("pulseRate");
-    uint32_t pulseDelay = request->get_word("pulseDelay");
-
     ParamCalPulse calParams; 
     ParamScan scanParams;
     ParamTTCGen ttcParams;
     
-    calParams.enable = useCalPulse;
-    calParams.isCurrent = currentPulse;
-    calParams.scaleFactor = calScaleFactor;
+    calParams.enable = request->get_word("useCalPulse");
+    calParams.isCurrent = request->get_word("currentPulse");
+    calParams.scaleFactor = request->get_word("calScaleFactor");
     
-    scanParams.ohN = ohN;
-    scanParams.vfatN = vfatN;
-    scanParams.vfatMask = mask;
-    scanParams.waitTime = waitTime;
+    scanParams.oh = request->get_word("ohN");
+    scanParams.vfat = request->get_word("vfatN");
+    scanParams.waitTime = request->get_word("waitTime");
     
-    ttcParams.pulseRate = pulseRate;
-    ttcParams.delay = pulseDelay;
+    ttcParams.pulseRate = request->get_word("pulseRate");
+    ttcParams.delay = request->get_word("pulseDelay");
     
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
     uint32_t outDataCTP7Rate[128];
@@ -1282,10 +1244,10 @@ void checkSbitRateWithCalPulse(const RPCMsg *request, RPCMsg *response){
 std::vector<uint32_t> dacScanLocal(localArgs *la, ParamScan *scanParams, bool useExtRefADC)
 {
 
-    uint32_t ohN = scanParams->ohN;
+    uint32_t ohN = scanParams->oh;
     uint32_t dacSelect = scanParams->dacSelect;
     uint32_t dacStep = scanParams->step;
-    uint32_t mask = scanParams->vfatMask;
+    uint32_t mask = scanParams->vfat;
 
     //Ensure VFAT3 Hardware
     if(fw_version_check("dacScanLocal", la) < 3){
@@ -1439,10 +1401,10 @@ void dacScan(const RPCMsg *request, RPCMsg *response){
 
     ParamScan scanParams;
 
-    scanParams.ohN = ohN;
+    scanParams.oh = ohN;
     scanParams.dacSelect = dacSelect;
     scanParams.step = dacStep;
-    scanParams.vfatMask = mask;
+    scanParams.vfat = mask;
     
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
     std::vector<uint32_t> dacScanResults = dacScanLocal(&la, &scanParams, useExtRefADC);
@@ -1495,10 +1457,10 @@ void dacScanMultiLink(const RPCMsg *request, RPCMsg *response){
 
         ParamScan scanParams;
 
-        scanParams.ohN = ohN;
+        scanParams.oh = ohN;
         scanParams.dacSelect = dacSelect;
         scanParams.step = dacStep;
-        scanParams.vfatMask = vfatMask;
+        scanParams.vfat = vfatMask;
         
         //Get dac scan results for this optohybrid
         LOGGER->log_message(LogManager::INFO, stdsprintf("Performing DAC Scan for OH%i", ohN));
@@ -1552,8 +1514,8 @@ void genChannelScan(const RPCMsg *request, RPCMsg *response)
         ParamScan scanParams;
         ParamCalPulse calParams;
 
-        scanParams.ohN = ohN;
-        scanParams.vfatMask = mask;
+        scanParams.oh = ohN;
+        scanParams.vfat = mask;
         scanParams.chan = ch;
         scanParams.nevts = nevts;
         scanParams.min = dacMin;

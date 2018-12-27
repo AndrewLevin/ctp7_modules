@@ -55,11 +55,9 @@ struct ParamCalPulse{
  */
 struct ParamScan{
     //Hardware selection
-    uint32_t ohN;       //optical link number
-    uint32_t ohMask;    //OH mask
-    uint32_t vfatN;     //VFAT number
-    uint32_t vfatMask;  //VFAT mask
-    uint32_t chan;      //channel of interest
+    uint32_t oh;       //optical link number or optical link mask
+    uint32_t vfat;     //VFAT number or VFAT mask
+    uint32_t chan;      //channel number
 
     //Params
     bool useUltra;   //Set to 1 in order to use the ultra scan
@@ -75,8 +73,8 @@ struct ParamScan{
     std::string scanReg;     //Register to scan against
 
     ParamScan(){
-        vfatMask = 0x0;
-        ohMask = 0xfff;
+        vfat = 0;
+        oh = 0;
 
         useUltra = true;
         useExtTrig = false;
