@@ -693,7 +693,7 @@ void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outData
 void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outDataTrigRatePerVFAT, uint32_t *outDataTrigRateOverall,ParamScan *scanParams)
 {
     uint32_t ohN = scanParams->ohN;
-    uint32_t vfatmask = scanParams->ohN;
+    uint32_t vfatmask = scanParams->vfatMask;
     uint32_t ch = scanParams->chan;
     uint32_t dacMin = scanParams->min;
     uint32_t dacMax = scanParams->max;
