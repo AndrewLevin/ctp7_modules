@@ -829,7 +829,8 @@ void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCa
     uint32_t nevts = scanParams->nevts;
 
     uint32_t pulseDelay = ttcParams->delay;
-
+    //uint32_t L1Ainterval = ttcParams->interval //not used in this function, but passed to ttcGenConfLocal through ttcParams
+    
     //Determine the inverse of the vfatmask
     uint32_t notmask = ~mask & 0xFFFFFF;
     

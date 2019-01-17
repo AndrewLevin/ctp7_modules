@@ -23,19 +23,19 @@
 
 memsvc_handle_t memsvc; /// \var global memory service handle required for registers read/write operations
 
-/*! \struct ParamScan
- *  Contains arguments related to calibration pulses
+/*! \struct ParamCalPulse
+ *  Contains arguments related to calibration pulses. Helps to make functions that take a large number of these arguments more managable.
  */
 struct ParamCalPulse{
-    bool enable; //true (false) turn on (off) calpulse
-    bool isCurrent; //true (false) is current injection (voltage pulse)
+    bool enable; /*!< true (false) turn on (off) calpulse */
+    bool isCurrent; /*!< true (false) is current injection (voltage pulse) */
 
-    uint32_t duration; //duration in BX's (CFG_CAL_DUR)
-    uint32_t extVoltStep; //External voltage step 0->disable; 1->enable (CFG_CAL_EXT)
-    uint32_t height; //height of calpulse (CFG_CAL_DAC)
-    uint32_t phase; //phase of calpulse (CFG_CAL_PHI)
-    uint32_t polarity; //polarity of calpulse 0->pos; 1->neg (CFG_CAL_SEL_POL)
-    uint32_t scaleFactor; //current pulse scale factor (CFG_CAL_FS)
+    uint32_t duration; /*!< duration in BX's (CFG_CAL_DUR) */
+    uint32_t extVoltStep; /*!< External voltage step 0->disable; 1->enable (CFG_CAL_EXT) */
+    uint32_t height; /*!< height of calpulse (CFG_CAL_DAC) */
+    uint32_t phase; /*!< phase of calpulse (CFG_CAL_PHI) */
+    uint32_t polarity; /*!< polarity of calpulse 0->pos; 1->neg (CFG_CAL_SEL_POL) */
+    uint32_t scaleFactor; /*!< current pulse scale factor (CFG_CAL_FS) */
 
     ParamCalPulse(){
         enable = false;
@@ -51,24 +51,24 @@ struct ParamCalPulse{
 }; //End ParamCalPulse
 
 /*! \struct ParamScan
- *  Contains arguments related to scans
+ *  Contains arguments related to scans. Helps to make functions that take a large number of these arguments more managable.
  */
 struct ParamScan{
     //Hardware selection
-    uint32_t oh;       //OH index or OH mask
-    uint32_t vfat;     //VFAT number or VFAT mask
-    uint32_t chan;      //channel number
+    uint32_t oh;       /*!< OH index or OH mask */
+    uint32_t vfat;     /*!< VFAT number or VFAT mask */
+    uint32_t chan;      /*!< channel number */
 
     //Params
-    bool useUltra;   //Set to 1 in order to use the ultra scan
+    bool useUltra;   /*!< Set to 1 in order to use the ultra scan */
 
-    uint32_t max;    //Maximum dac value
-    uint32_t min;    //Minimum dac value
-    uint32_t step;   //step size for dac
-    uint32_t nevts;     //Number of events
-    uint32_t waitTime;  //unit of time; uints depend on function
+    uint32_t max;    /*!< Maximum dac value */
+    uint32_t min;    /*!< Minimum dac value */
+    uint32_t step;   /*!< step size for dac */
+    uint32_t nevts;     /*!< Number of events */
+    uint32_t waitTime;  /*!< unit of time; uints depend on function */
 
-    std::string scanReg;     //Register to scan against
+    std::string scanReg;     /*!< Register to scan against */
 
     ParamScan(){
         vfat = 0;
@@ -84,17 +84,17 @@ struct ParamScan{
 }; //End ParamScan
 
 /*! \struct ParamTTCGen
- *  Contains arguments related to ttc generation
+ *  Contains arguments related to ttc generation. Helps to make functions that take a large number of these arguments more managable.
  */
 struct ParamTTCGen{
-    bool enable; //If true (false) ignore (take) ttc commands from backplane for this AMC (affects all links)
+    bool enable; /*!< If true (false) ignore (take) ttc commands from backplane for this AMC (affects all links) */
 
-    uint32_t interval; //How often to repeat signals
-    uint32_t mode; //T1 controller mode
-    uint32_t nPulses; //Number of calibration pulses to generate
-    uint32_t delay; //Delay between CalPulse and L1A
-    uint32_t pulseRate; //rate of calpulses to be sent in Hz
-    uint32_t type; //Type of T1 signal to send
+    uint32_t interval; /*!< How often to repeat signals */
+    uint32_t mode; /*!< T1 controller mode */
+    uint32_t nPulses; /*!< Number of calibration pulses to generate */
+    uint32_t delay; /*!< Delay between CalPulse and L1A */
+    uint32_t pulseRate; /*!< rate of calpulses to be sent in Hz */
+    uint32_t type; /*!< Type of T1 signal to send */
 
     ParamTTCGen(){
         enable = false;

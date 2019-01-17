@@ -74,12 +74,12 @@ void applyChanMask(std::unordered_map<uint32_t, uint32_t> map_chanOrigMask, loca
 /*! \fn void confCalPulseLocal(localArgs *la, uint32_t ohN, uint32_t mask, uint32_t ch, bool toggleOn, bool currentPulse, uint32_t calScaleFactor)
  *  \brief Configures the calibration pulse for channel ch on all VFATs of ohN that are not in mask to either be on (toggleOn==true) or off (toggleOn==false).  If ch == 128 and toggleOn == False will write the CALPULSE_ENABLE bit for all channels of all vfats that are not masked on ohN to 0x0.
  *  \param la Local arguments structure
- *  \param ohN Optical link number
- *  \param mask VFAT mask
- *  \param ch Channel of interest
- *  \param toggleOn if true (false) turns the calibration pulse on (off) for channel ch
- *  \param currentPulse Selects whether to use current or volage pulse
- *  \param calScaleFactor Scale factor for the calibration pulse height (00 = 25%, 01 = 50%, 10 = 75%, 11 = 100%)
+ *  \param ohN (= scanParams->oh) Optical link number
+ *  \param mask (= scanParams->vfat) VFAT mask 
+ *  \param ch (= scanParams->ch) Channel of interest 
+ *  \param toggleOn (= calParams->enable) if true (false) turns the calibration pulse on (off) for channel ch 
+ *  \param currentPulse (= calParams->isCurrent) Selects whether to use current or volage pulse (passed through calParams)
+ *  \param calScaleFactor (= calParams->scaleFactor) Scale factor for the calibration pulse height (00 = 25%, 01 = 50%, 10 = 75%, 11 = 100%) (passed through calParams)
  */
 bool confCalPulseLocal(localArgs *la, ParamCalPulse *calParams, ParamScan *scanParams);
 
@@ -152,24 +152,24 @@ void ttcGenConfLocal(localArgs * la, uint32_t ohN, ParamTTCGen *ttcParams);
  *  \brief Configures TTC generator
  *
  *  - **v3**  electronics behavior:
- *    * pulseDelay (only for enable = true), delay between CalPulse and L1A
- *    * L1Ainterval (only for enable = true), how often to repeat signals
- *    * enable = true (false) ignore (take) ttc commands from backplane for this AMC (affects all links)
+ *    * pulseDelay (= ttcParams->delay) (only for enable = true), delay between CalPulse and L1A
+ *    * L1Ainterval (= ttcParams->interval) (only for enable = true), how often to repeat signals
+ *    * enable (= ttcParams->enable) = true (false) ignore (take) ttc commands from backplane for this AMC (affects all links)
  *  - **v2b** electronics behavior:
  *    * Configure the T1 controller
- *    * mode:
+ *    * mode (= ttcParams->mode):
  *      * 0 (Single T1 signal),
  *      * 1 (CalPulse followed by L1A),
  *      * 2 (pattern)
- *    * type (only for mode 0, type of T1 signal to send):
+ *    * type (= ttcParams->type) (only for mode 0, type of T1 signal to send):
  *      * 0 L1A
  *      * 1 CalPulse
  *      * 2 Resync
  *      * 3 BC0
- *    * pulseDelay (only for mode 1), delay between CalPulse and L1A
- *    * L1Ainterval (only for mode 0,1), how often to repeat signals
- *    * nPulses how many signals to send (0 is continuous)
- *    * enable = true (false) start (stop) the T1Controller for link ohN
+ *    * pulseDelay (= ttcParams->delay) (only for mode 1), delay between CalPulse and L1A
+ *    * L1Ainterval (= ttcParams->interval) (only for mode 0,1), how often to repeat signals
+ *    * nPulses (ttcParams->nPulses) how many signals to send (0 is continuous)
+ *    * enable (= ttcParams->enable)= true (false) start (stop) the T1Controller for link ohN
  *
  *  \param request RPC request message
  *  \param response RPC response message
@@ -245,13 +245,13 @@ void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outData
  *  \param outDataDacVal
  *  \param outDataTrigRatePerVFAT
  *  \param outDataTrigRateOverall
- *  \param ohN Optohybrid optical link number
- *  \param vfatMask VFAT mask
- *  \param ch Channel of interest
- *  \param dacMin Minimal value of scan variable
- *  \param dacMax Maximal value of scan variable
- *  \param dacStep Scan variable change step
- *  \param scanReg DAC register to scan over name
+ *  \param ohN (= scanParams->oh) Optohybrid optical link number
+ *  \param maskOh (= scanParams->oh) VFAT mask written to the register GEM_AMC.OH.OHX.FPGA.TRIG.CTRL.VFAT_MASK
+ *  \param ch (= scanParams->ch) Channel of interest
+ *  \param dacMin (= scanParams->min) Minimal value of scan variable
+ *  \param dacMax (= scanParams->max) Maximal value of scan variable
+ *  \param dacStep (= scanParams->step) Scan variable change step
+ *  \param scanReg (= scanParams->scanReg) DAC register to scan over name
  */
 void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outDataTrigRatePerVFAT, uint32_t *outDataTrigRateOverall,ParamScan *scanParams);
 
@@ -269,15 +269,15 @@ void sbitRateScan(const RPCMsg *request, RPCMsg *response);
  *  \details The SBIT size represents the number of adjacent trigger pads are part of this cluster.  The SBIT address always reports the lowest trigger pad number in the cluster.  The sbit size takes values [0,7].  So an sbit cluster with address 13 and with size of 2 includes 3 trigger pads for a total of 6 vfat channels and starts at channel \f$13*2=26\f$ and continues to channel \f$(2*15)+1=31\f$.
  *  \param la Local arguments structure
  *  \param outData pointer to an array of size (24*128*8*nevts) which stores the results of the scan, bits [0,7] channel pulsed; bits [8:15] sbit observed; bits [16:20] vfat pulsed; bits [21,25] vfat observed; bit 26 isValid; bits [27,29] are the cluster size
- *  \param ohN Optical link
- *  \param vfatN specific vfat position to be tested
+ *  \param ohN (scanParams->oh) OH number
+ *  \param vfatN (scanParams->vfat) specific vfat position to be tested
  *  \param mask VFATs to be excluded from the trigger
- *  \param useCalPulse true (false) checks sbit mapping with calpulse on (off); useful for measuring noise
- *  \param currentPulse Selects whether to use current or volage pulse
- *  \param calScaleFactor
- *  \param nevts the number of cal pulses to inject per channel
- *  \param L1Ainterval How often to repeat signals (only for enable = true)
- *  \param pulseDelay delay between CalPulse and L1A
+ *  \param useCalPulse (calParams->useCalPulse) true (false) checks sbit mapping with calpulse on (off); useful for measuring noise
+ *  \param currentPulse (calParams->isCurrent) Selects whether to use current or volage pulse
+ *  \param calScaleFactor (calParams->scaleFactor)
+ *  \param nevts (scanParams->nevts) the number of cal pulses to inject per channel
+ *  \param L1Ainterval (ttcParams->interval) How often to repeat signals (only for enable = true)
+ *  \param pulseDelay (ttcParams->delay) delay between CalPulse and L1A
  */
 void checkSbitMappingWithCalPulseLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, ParamScan *scanParams, ParamTTCGen *ttcParams);
 
@@ -294,15 +294,15 @@ void checkSbitMappingWithCalPulse(const RPCMsg *request, RPCMsg *response);
  *  \param outDataCTP7Rate pointer to an array storing the value of GEM_AMC.TRIGGER.OHX.TRIGGER_RATE for X = ohN; array size 3072 elements, idx = 128 * vfat + chan
  *  \param outDataFPGAClusterCntRate as outDataCTP7Rate but for the value of GEM_AMC.OH.OHX.FPGA.TRIG.CNT.CLUSTER_COUNT
  *  \param outDataVFATSBits as outDataCTP7Rate but for the value of GEM_AMC.OH.OHX.FPGA.TRIG.CNT.VFATY_SBITS for X = ohN and Y the vfat number (following the array idx rule above)
- *  \param ohN Optical link
- *  \param vfatN specific vfat position to be tested
+ *  \param ohN (= scanParams->oh) OH number
+ *  \param vfatN (= scanParams->vfat) specific vfat position to be tested
  *  \param mask VFATs to be excluded from the trigger
- *  \param useCalPulse true (false) checks sbit mapping with calpulse on (off); useful for measuring noise
- *  \param currentPulse Selects whether to use current or volage pulse
- *  \param calScaleFactor
- *  \waitTime Measurement duration per point in milliseconds
- *  \param pulseRate rate of calpulses to be sent in Hz
- *  \param pulseDelay delay between CalPulse and L1A
+ *  \param useCalPulse (= calParams->enable) true (false) checks sbit mapping with calpulse on (off); useful for measuring noise
+ *  \param currentPulse (= calParams->isCurrent) Selects whether to use current or volage pulse
+ *  \param calScaleFactor (= calParams->scaleFactor)
+ *  \waitTime (= scanParams->waitTime) Measurement duration per point in milliseconds
+ *  \param pulseRate (= ttcParams->pulseRate) rate of calpulses to be sent in Hz
+ *  \param pulseDelay (= ttcParams->delay) delay between CalPulse and L1A
  */
 void checkSbitRateWithCalPulseLocal(localArgs *la, uint32_t *outDataCTP7Rate, uint32_t *outDataFPGAClusterCntRate, uint32_t *outDataVFATSBits, ParamCalPulse *calParams, ParamScan *scanParams, ParamTTCGen *ttcParams);
 
@@ -316,10 +316,10 @@ void checkSbitRateWithCalPulse(const RPCMsg *request, RPCMsg *response);
 /*! \fn std::vector<uint32_t> dacScanLocal(localArgs *la, uint32_t ohN, uint32_t dacSelect, uint32_t dacStep=1, uint32_t mask=0xFF000000, bool useExtRefADC=false)
  *  \brief configures the VFAT3 DAC Monitoring and then scans the DAC and records the measured ADC values for all unmasked VFATs
  *  \param la Local arguments structure
- *  \param ohN Optical link
+ *  \param ohN (= scanParams->oh) OH number
  *  \param dacSelect Monitor Sel for ADC monitoring in VFAT3, see documentation for GBL_CFG_CTR_4 in VFAT3 manual for more details
- *  \param dacStep step size to scan the dac in
- *  \param mask VFAT mask to use, a value of 1 in the N^th bit indicates the N^th VFAT is masked
+ *  \param dacStep (= scanParams->step) step size to scan the dac in
+ *  \param mask (= scanParams->vfat) VFAT mask to use, a value of 1 in the N^th bit indicates the N^th VFAT is masked
  *  \param useExtRefADC if (true) false use the (externally) internally referenced ADC on the VFAT3 for monitoring
  *  \return Returns a std::vector<uint32_t> object of size 24*(dacMax-dacMin+1)/dacStep where dacMax and dacMin are described in the VFAT3 manual.  For each element bits [7:0] are the dacValue, bits [17:8] are the ADC readback value in either current or voltage units depending on dacSelect (again, see VFAT3 manual), bits [22:18] are the VFAT position, and bits [26:23] are the optohybrid number.
  */
