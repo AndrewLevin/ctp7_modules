@@ -284,10 +284,9 @@ void ttcGenConf(const RPCMsg *request, RPCMsg *response)
     auto rtxn = lmdb::txn::begin(env, nullptr, MDB_RDONLY);
     auto dbi = lmdb::dbi::open(rtxn, nullptr);
 
-    ParamTTCGen ttcParams;
-    ParamScan scanParams;
+    uint32_t oh = request->get_word("ohN");
 
-    scanParams.oh = request->get_word("ohN");
+    ParamTTCGen ttcParams;
     
     ttcParams.mode = request->get_word("mode");
     ttcParams.type = request->get_word("type");
@@ -297,8 +296,8 @@ void ttcGenConf(const RPCMsg *request, RPCMsg *response)
     ttcParams.enable = request->get_word("enable");
     
     struct localArgs la = {.rtxn = rtxn, .dbi = dbi, .response = response};
-    LOGGER->log_message(LogManager::INFO, stdsprintf("Calling ttcGenConfLocal with ohN : %i, mode : %i, type : %i, pulse delay : %i, L1A interval : %i, number of pulses : %i", scanParams.oh,ttcParams.mode,ttcParams.type,ttcParams.delay,ttcParams.interval,ttcParams.nPulses));
-    ttcGenConfLocal(&la, &scanParams, &ttcParams);    
+    LOGGER->log_message(LogManager::INFO, stdsprintf("Calling ttcGenConfLocal with ohN : %i, mode : %i, type : %i, pulse delay : %i, L1A interval : %i, number of pulses : %i", oh,ttcParams.mode,ttcParams.type,ttcParams.delay,ttcParams.interval,ttcParams.nPulses));
+    ttcGenConfLocal(&la, oh, &ttcParams);    
 
     return;
 }

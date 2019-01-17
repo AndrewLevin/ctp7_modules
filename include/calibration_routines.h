@@ -89,7 +89,7 @@ bool confCalPulseLocal(localArgs *la, ParamCalPulse *calParams, ParamScan *scanP
  *  \param ohN Optical link number
  *  \param ch Channel of interest
  */
-void dacMonConfLocal(localArgs * la, ParamScan *scanParams);
+void dacMonConfLocal(localArgs * la, uint32_t ohN, uint32_t ch);
 
 /*! \fn void ttcGenToggleLocal(localArgs * la, uint32_t ohN, bool enable)
  *  \brief Toggles the TTC Generator. Local callable version of ttcGenToggle
@@ -101,7 +101,7 @@ void dacMonConfLocal(localArgs * la, ParamScan *scanParams);
  *  \param ohN Optical link
  *  \param enable See detailed mehod description
  */
-void ttcGenToggleLocal(localArgs * la, ParamScan *scanParams, ParamTTCGen *ttcParams);
+void ttcGenToggleLocal(localArgs * la, uint32_t ohN, bool enable);
 
 /*! \fn void ttcGenToggle(const RPCMsg *request, RPCMsg *response)
  *  \brief Toggles the TTC Generator
@@ -146,7 +146,7 @@ void ttcGenToggle(const RPCMsg *request, RPCMsg *response);
  *  \param nPulses Number of calibration pulses to generate
  *  \param enable If true (false) ignore (take) ttc commands from backplane for this AMC (affects all links)
  */
-void ttcGenConfLocal(localArgs * la, ParamScan *scanParams, ParamTTCGen *ttcParams);
+void ttcGenConfLocal(localArgs * la, uint32_t ohN, ParamTTCGen *ttcParams);
 
 /*! \fn void ttcGenConf(const RPCMsg *request, RPCMsg *response)
  *  \brief Configures TTC generator
@@ -194,7 +194,7 @@ void ttcGenConf(const RPCMsg *request, RPCMsg *response);
  *  \param useUltra Set to 1 in order to use the ultra scan
  *  \param useExtTrig Set to 1 in order to use the backplane triggers
  */
-void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, ParamScan *scanParams);
+void genScanLocal(localArgs *la, uint32_t *outData, ParamCalPulse *calParams, ParamScan *scanParams, bool useExtTrig);
 
 /*! \fn void genScan(const RPCMsg *request, RPCMsg *response)
  *  \brief Generic calibration routine
