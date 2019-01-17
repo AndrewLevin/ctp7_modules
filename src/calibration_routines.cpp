@@ -681,12 +681,12 @@ void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outData
 void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outDataTrigRatePerVFAT, uint32_t *outDataTrigRateOverall,ParamScan *scanParams)
 {
     uint32_t ohN = scanParams->oh;
-    uint32_t vfatmask = scanParams->vfat;    
+    uint32_t vfatmask = scanParams->vfat;
     uint32_t ch = scanParams->chan;
     uint32_t dacMin = scanParams->min;
     uint32_t dacMax = scanParams->max;
     uint32_t dacStep = scanParams->step;
-    std::string scanReg = scanParams->scanReg ;
+    std::string scanReg = scanParams->scanReg;
 
     char regBuf[200];
     switch (fw_version_check("SBIT Rate Scan", la)){
@@ -700,7 +700,7 @@ void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t 
                 la->response->set_string("error",regBuf);
                 return;
             }
-                
+
             //If ch!=128 store the original channel mask settings
             //Then mask all other channels except for channel ch
             std::unordered_map<uint32_t, uint32_t> map_chanOrigMask[24]; //key -> reg addr; val -> reg value
