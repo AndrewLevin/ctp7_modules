@@ -55,7 +55,7 @@ struct ParamCalPulse{
  */
 struct ParamScan{
     //Hardware selection
-    uint32_t oh;       //optical link number or optical link mask
+    uint32_t oh;       //OH index or OH mask
     uint32_t vfat;     //VFAT number or VFAT mask
     uint32_t chan;      //channel number
 
