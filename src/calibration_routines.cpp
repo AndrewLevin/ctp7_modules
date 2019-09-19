@@ -581,7 +581,7 @@ void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outData
             for (uint32_t dacVal = dacMin; dacVal <= dacMax; dacVal += dacStep) {
                 sprintf(regBuf,"GEM_AMC.OH.OH%i.GEB.VFAT%i.CFG_%s",ohN,vfatN,scanReg.c_str());
                 writeReg(la, regBuf, dacVal);
-                std::this_thread::sleep_for(std::chrono::seconds(waitTime));
+                std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
 
                 unsigned int idx = (dacVal-dacMin)/dacStep;
                 outDataDacVal[idx] = dacVal;
@@ -663,10 +663,13 @@ void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t 
 
             //Prep the SBIT counters
             std::unordered_map<uint32_t,uint32_t> map_origSBITPersist;
+            std::unordered_map<uint32_t,uint32_t> map_origSBITTimeMax;            
             for (unsigned int ohN = 0; ohN < amc::OH_PER_AMC; ++ohN) {
                 if ((ohMask >> ohN) & 0x1) {
                     map_origSBITPersist[ohN] = readReg(la,  stdsprintf("GEM_AMC.OH.OH%i.FPGA.TRIG.CNT.SBIT_CNT_PERSIST",ohN));
-                    writeReg(la, stdsprintf("GEM_AMC.OH.OH%i.FPGA.TRIG.CNT.SBIT_CNT_PERSIST",ohN), 0x1); //Only reset counters after a counter reset
+                    map_origSBITTimeMax[ohN] = readReg(la,  stdsprintf("GEM_AMC.OH.OH%i.FPGA.TRIG.CNT.SBIT_CNT_TIME_MAX",ohN));
+                    writeReg(la, stdsprintf("GEM_AMC.OH.OH%i.FPGA.TRIG.CNT.SBIT_CNT_PERSIST",ohN), 0x0); //reset all counters after SBIT_CNT_TIME_MAX
+                    writeReg(la, stdsprintf("GEM_AMC.OH.OH%i.FPGA.TRIG.CNT.SBIT_CNT_TIME_MAX",ohN), uint32_t(0x02638e98*waitTime) ); //count for a number of BX's specified by waitTime
                 }
             }
 
@@ -693,8 +696,8 @@ void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t 
                     } // End checking whether the OH is masked
                 } // End loop over optohybrids
 
-                //Wait just over 1 second
-                std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
+                //wait a little bit longer than the waitTime to allow for delays
+                std::this_thread::sleep_for(std::chrono::milliseconds(waitTime*1000+100));
 
                 //Read the counters
                 for (unsigned int ohN = 0; ohN < amc::OH_PER_AMC; ++ohN) {
@@ -718,6 +721,7 @@ void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t 
             for (unsigned int ohN = 0; ohN < amc::OH_PER_AMC; ++ohN) {
                 if ((ohMask >> ohN) & 0x1) {
                     writeReg(la, stdsprintf("GEM_AMC.OH.OH%i.FPGA.TRIG.CNT.SBIT_CNT_PERSIST",ohN), map_origSBITPersist[ohN]);
+                    writeReg(la, stdsprintf("GEM_AMC.OH.OH%i.FPGA.TRIG.CNT.SBIT_CNT_TIME_MAX",ohN), map_origSBITTimeMax[ohN]);                    
                 }
             }
 
