@@ -581,7 +581,7 @@ void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outData
             for (uint32_t dacVal = dacMin; dacVal <= dacMax; dacVal += dacStep) {
                 sprintf(regBuf,"GEM_AMC.OH.OH%i.GEB.VFAT%i.CFG_%s",ohN,vfatN,scanReg.c_str());
                 writeReg(la, regBuf, dacVal);
-                std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
+                std::this_thread::sleep_for(std::chrono::seconds(waitTime));
 
                 unsigned int idx = (dacVal-dacMin)/dacStep;
                 outDataDacVal[idx] = dacVal;
@@ -607,7 +607,7 @@ void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outData
     return;
 } //End sbitRateScanLocal(...)
 
-void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outDataTrigRatePerVFAT, uint32_t *outDataTrigRateOverall, uint32_t ch, uint32_t dacMin, uint32_t dacMax, uint32_t dacStep, std::string scanReg, uint32_t waitTime, uint32_t ohMask=0xFFF)
+void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outDataTrigRatePerVFAT, uint32_t *outDataTrigRateOverall, uint32_t ch, uint32_t dacMin, uint32_t dacMax, uint32_t dacStep, std::string scanReg, uint32_t ohMask=0xFFF, uint32_t waitTime=1)
 {
     char regBuf[200];
     // Check that OH mask does not exceeds 0xFFF
@@ -708,7 +708,7 @@ void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t 
 
                             idx = ohN*oh::VFATS_PER_OH*(dacMax-dacMin+1)/dacStep + vfat*(dacMax-dacMin+1)/dacStep+(dacVal-dacMin)/dacStep;
                             //divide by the waitTime in seconds to calculate the rate
-                            outDataTrigRatePerVFAT[idx] = readRawAddress(ohTrigRateAddr[ohN][vfat], la->response)*float(1000)/float(waitTime);
+                            outDataTrigRatePerVFAT[idx] = readRawAddress(ohTrigRateAddr[ohN][vfat], la->response);
                         } //End Loop Over all VFATs
                     } // End checking whether the OH is masked
                 } // End loop over optohybrids
@@ -761,7 +761,7 @@ void sbitRateScan(const RPCMsg *request, RPCMsg *response)
     uint32_t outDataTrigRatePerVFAT[amc::OH_PER_AMC*oh::VFATS_PER_OH*(dacMax-dacMin+1)/dacStep];
     uint32_t outDataDacValPerOH[amc::OH_PER_AMC*(dacMax-dacMin+1)/dacStep];
     uint32_t outDataTrigRatePerOH[amc::OH_PER_AMC*(dacMax-dacMin+1)/dacStep];
-    sbitRateScanParallelLocal(&la, outDataDacValPerOH, outDataTrigRatePerVFAT, outDataTrigRatePerOH, ch, dacMin, dacMax, dacStep, scanReg, waitTime, ohMask);
+    sbitRateScanParallelLocal(&la, outDataDacValPerOH, outDataTrigRatePerVFAT, outDataTrigRatePerOH, ch, dacMin, dacMax, dacStep, scanReg, ohMask, waitTime);
 
     response->set_word_array("outDataVFATRate", outDataTrigRatePerVFAT, amc::OH_PER_AMC*oh::VFATS_PER_OH*(dacMax-dacMin+1)/dacStep);
     response->set_word_array("outDataDacValue", outDataDacValPerOH, amc::OH_PER_AMC*(dacMax-dacMin+1)/dacStep);
