@@ -697,7 +697,7 @@ void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t 
                 } // End loop over optohybrids
 
                 //wait a little bit longer than the waitTime to allow for delays
-                std::this_thread::sleep_for(std::chrono::milliseconds(waitTime*1000+100));
+                std::this_thread::sleep_for(std::chrono::seconds(2*waitTime));
 
                 //Read the counters
                 for (unsigned int ohN = 0; ohN < amc::OH_PER_AMC; ++ohN) {
@@ -710,7 +710,6 @@ void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t 
                             if ( !( (notmask >> vfat) & 0x1)) continue;
 
                             idx = ohN*oh::VFATS_PER_OH*(dacMax-dacMin+1)/dacStep + vfat*(dacMax-dacMin+1)/dacStep+(dacVal-dacMin)/dacStep;
-                            //divide by the waitTime in seconds to calculate the rate
                             outDataTrigRatePerVFAT[idx] = readRawAddress(ohTrigRateAddr[ohN][vfat], la->response);
                         } //End Loop Over all VFATs
                     } // End checking whether the OH is masked

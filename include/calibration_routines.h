@@ -252,7 +252,7 @@ void sbitRateScanLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outData
  *  \param dacMax Maximal value of scan variable
  *  \param dacStep Scan variable change step
  *  \param scanReg DAC register to scan over name
- *  \param waitTime Amount of time to collect data, applies to the per-VFAT rates not the overall rate
+ *  \param waitTime Amount of time to collect data, applies to the per-VFAT rates not the overall rate, maximum is just more than 107 seconds
  */
 void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t *outDataTrigRatePerVFAT, uint32_t *outDataTrigRateOverall, uint32_t ohN, uint32_t vfatmask, uint32_t ch, uint32_t dacMin, uint32_t dacMax, uint32_t dacStep, std::string scanReg);
 
