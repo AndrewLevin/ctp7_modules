@@ -696,8 +696,7 @@ void sbitRateScanParallelLocal(localArgs *la, uint32_t *outDataDacVal, uint32_t 
                     } // End checking whether the OH is masked
                 } // End loop over optohybrids
 
-                //wait a little bit longer than the waitTime to allow for delays
-                std::this_thread::sleep_for(std::chrono::seconds(2*waitTime));
+                std::this_thread::sleep_for(std::chrono::seconds(waitTime));
 
                 //Read the counters
                 for (unsigned int ohN = 0; ohN < amc::OH_PER_AMC; ++ohN) {
